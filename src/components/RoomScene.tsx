@@ -11,6 +11,7 @@ type Panel =
   | "newsletters"
   | "cheat"
   | "tv"
+  | "radio"
   | null;
 
 type Box = { left: number; top: number; width: number; height: number };
@@ -121,6 +122,21 @@ export default function RoomScene() {
       { x: (1924 / 2400) * 100, y: (1162 / 1792) * 100 },
       // bottom-left (1815, 1219)
       { x: (1815 / 2400) * 100, y: (1219 / 1792) * 100 },
+    ],
+    []
+  );
+
+  // Boombox polygon using Photoshop points
+  const boomboxPoly: PolyPoint[] = useMemo(
+    () => [
+      // top-left  (720, 679)
+      { x: (720 / 2400) * 100, y: (679 / 1792) * 100 },
+      // top-right (920, 596)
+      { x: (920 / 2400) * 100, y: (596 / 1792) * 100 },
+      // bottom-right (923, 709)
+      { x: (923 / 2400) * 100, y: (709 / 1792) * 100 },
+      // bottom-left (728, 806)
+      { x: (728 / 2400) * 100, y: (806 / 1792) * 100 },
     ],
     []
   );
@@ -360,6 +376,12 @@ export default function RoomScene() {
 
           {/* Additional polygon hotspots */}
           <button
+            className="hotspot hotspot-boombox"
+            style={polygonStyle(boomboxPoly)}
+            onClick={() => setPanel("radio")}
+            aria-label="Open boombox"
+          />
+          <button
             className="hotspot hotspot-pizza"
             style={polygonStyle(pizzaPoly)}
             onClick={() =>
@@ -384,6 +406,7 @@ export default function RoomScene() {
               <div className="debugBox" style={boxStyle(hotspots.pc)}><span>PC</span></div>
               <div className="debugPoly" style={polygonStyle(shelfPoly)}><span>Bookshelf</span></div>
               <div className="debugPoly" style={polygonStyle(tvPoly)}><span>TV</span></div>
+              <div className="debugPoly" style={polygonStyle(boomboxPoly)}><span>Boombox</span></div>
               <div className="debugPoly" style={polygonStyle(pizzaPoly)}><span>Pizza</span></div>
               <div className="debugPoly" style={polygonStyle(nirvanaPoly)}><span>Nirvana</span></div>
               <div className="debugPoly" style={polygonStyle(consolePoly)}><span>Console</span></div>
@@ -395,6 +418,32 @@ export default function RoomScene() {
       {hasPanel && <div className="modalBackdrop" onClick={() => setPanel(null)} />}
 
       {/* Windows */}
+      {panel === "radio" && (
+        <Win95Window
+          title="Boombox · Lofi Incoming"
+          onClose={() => setPanel(null)}
+          defaultX={70}
+          defaultY={60}
+          width={420}
+          height={180}
+        >
+          <div className="winSection">
+            <p>Coming soon: in-room lofi radio.</p>
+            <p>
+              For now, open the{" "}
+              <a
+                href="https://www.youtube.com/watch?v=YfVHMnqf_RE&list=PL4QmEcRcvG6JPfM0OyA-e2ZwOTJox2zSI"
+                target="_blank"
+                rel="noreferrer"
+              >
+                playlist on YouTube
+              </a>
+              .
+            </p>
+          </div>
+        </Win95Window>
+      )}
+
       {panel === "desktop" && (
         <Win95Window
           title="AFTERSCHOOL-LAIR"
