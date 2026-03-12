@@ -16,7 +16,7 @@ export const metadata: Metadata = {
   title: "Bum's Room",
   description: "An interactive afterschool lair with pixel-art vibes, hotspots, and a Windows 95 PC.",
   icons: {
-    icon: "/favicon.ico",
+    icon: "/favicon.png",
   },
 };
 
