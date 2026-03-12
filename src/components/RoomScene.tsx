@@ -24,6 +24,8 @@ export default function RoomScene() {
   const [glitch, setGlitch] = useState(false);
   const [musicOn, setMusicOn] = useState(false);
   const [desktopTime, setDesktopTime] = useState("");
+  const playlistUrl =
+    "https://www.youtube.com/watch?v=YfVHMnqf_RE&list=PL4QmEcRcvG6JPfM0OyA-e2ZwOTJox2zSI";
 
   // NEW: debug overlay to line things up
   const [debug, setDebug] = useState(false);
@@ -310,8 +312,17 @@ export default function RoomScene() {
     setGlitch(true);
     window.setTimeout(() => setGlitch(false), 420);
   };
-
-  const toggleMusic = () => setMusicOn((v) => !v);
+  const toggleMusic = () => {
+    setMusicOn((prev) => {
+      const next = !prev;
+      if (next) {
+        const index = Math.floor(Math.random() * 30) + 1; // rough upper bound; safe if fewer
+        const url = `${playlistUrl}&index=${index}`;
+        window.open(url, "_blank", "noopener,noreferrer");
+      }
+      return next;
+    });
+  };
 
   const hasPanel = panel !== null;
 
@@ -619,7 +630,7 @@ export default function RoomScene() {
         </Win95Window>
       )}
 
-      <div className="status">
+      <div className="status" onClick={toggleMusic}>
         <span className="dot" data-on={musicOn ? "1" : "0"} />
         <span>{musicOn ? "Radio: On" : "Radio: Off"}</span>
       </div>
