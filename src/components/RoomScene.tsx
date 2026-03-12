@@ -22,10 +22,7 @@ export default function RoomScene() {
 
   const [panel, setPanel] = useState<Panel>(null);
   const [glitch, setGlitch] = useState(false);
-  const [musicOn, setMusicOn] = useState(false);
   const [desktopTime, setDesktopTime] = useState("");
-  const playlistUrl =
-    "https://www.youtube.com/watch?v=YfVHMnqf_RE&list=PL4QmEcRcvG6JPfM0OyA-e2ZwOTJox2zSI";
 
   // NEW: debug overlay to line things up
   const [debug, setDebug] = useState(false);
@@ -311,17 +308,6 @@ export default function RoomScene() {
   const triggerGlitch = () => {
     setGlitch(true);
     window.setTimeout(() => setGlitch(false), 420);
-  };
-  const toggleMusic = () => {
-    setMusicOn((prev) => {
-      const next = !prev;
-      if (next) {
-        const index = Math.floor(Math.random() * 30) + 1; // rough upper bound; safe if fewer
-        const url = `${playlistUrl}&index=${index}`;
-        window.open(url, "_blank", "noopener,noreferrer");
-      }
-      return next;
-    });
   };
 
   const hasPanel = panel !== null;
@@ -630,11 +616,6 @@ export default function RoomScene() {
         </Win95Window>
       )}
 
-      <div className="status" onClick={toggleMusic}>
-        <span className="dot" data-on={musicOn ? "1" : "0"} />
-        <span>{musicOn ? "Radio: On" : "Radio: Off"}</span>
-      </div>
-
       <style jsx>{`
         .sceneRoot {
           position: relative;
@@ -798,34 +779,6 @@ export default function RoomScene() {
           0% { filter: none; }
           30% { filter: drop-shadow(2px 0 0 rgba(255,0,80,0.5)) drop-shadow(-2px 0 0 rgba(0,180,255,0.5)); }
           100% { filter: none; }
-        }
-
-        .status {
-          position: fixed;
-          bottom: 14px;
-          left: 14px;
-          z-index: 50;
-          display: flex;
-          gap: 10px;
-          align-items: center;
-          padding: 8px 10px;
-          border-radius: 999px;
-          background: rgba(255,255,255,0.06);
-          border: 1px solid rgba(255,255,255,0.10);
-          backdrop-filter: blur(10px);
-          font-size: 12px;
-          color: rgba(255,255,255,0.85);
-        }
-        .dot {
-          width: 8px;
-          height: 8px;
-          border-radius: 999px;
-          background: rgba(255,255,255,0.25);
-          box-shadow: 0 0 14px rgba(255,255,255,0.18);
-        }
-        .dot[data-on="1"] {
-          background: rgba(120,255,160,0.65);
-          box-shadow: 0 0 16px rgba(120,255,160,0.35);
         }
 
         .winSection { display: grid; gap: 10px; }
