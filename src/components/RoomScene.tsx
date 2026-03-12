@@ -20,9 +20,12 @@ type PolyPoint = { x: number; y: number }; // percentage coords (0–100)
 export default function RoomScene() {
   const rainRef = useRef<HTMLCanvasElement | null>(null);
   const stormRef = useRef<HTMLCanvasElement | null>(null);
+  const lofiAudioRef = useRef<HTMLAudioElement | null>(null);
+  const rainAudioRef = useRef<HTMLAudioElement | null>(null);
 
   const [panel, setPanel] = useState<Panel>(null);
   const [glitch, setGlitch] = useState(false);
+  const [radioOn, setRadioOn] = useState(false);
   const [desktopTime, setDesktopTime] = useState("");
 
   // NEW: debug overlay to line things up
@@ -326,12 +329,43 @@ export default function RoomScene() {
     window.setTimeout(() => setGlitch(false), 420);
   };
 
+  const toggleRadio = async () => {
+    const lofi = lofiAudioRef.current;
+    const rain = rainAudioRef.current;
+    if (!lofi || !rain) return;
+
+    try {
+      if (!radioOn) {
+        // start both loops together
+        lofi.currentTime = 0;
+        rain.currentTime = 0;
+        lofi.volume = 0.7;
+        rain.volume = 0.45;
+        await Promise.all([lofi.play(), rain.play()]);
+        setRadioOn(true);
+      } else {
+        lofi.pause();
+        rain.pause();
+        setRadioOn(false);
+      }
+    } catch {
+      // if browser blocks playback, just ensure they're paused
+      lofi.pause();
+      rain.pause();
+      setRadioOn(false);
+    }
+  };
+
   const hasPanel = panel !== null;
 
   return (
     <div className={`sceneRoot ${glitch ? "glitch" : ""}`}>
       <canvas ref={stormRef} className="stormCanvas" aria-hidden />
       <canvas ref={rainRef} className="rainCanvas" aria-hidden />
+
+      {/* Hidden audio elements for boombox lofi + rain */}
+      <audio ref={lofiAudioRef} src="/audio/lofi-loop.mp3" loop preload="auto" />
+      <audio ref={rainAudioRef} src="/audio/rain-loop.mp3" loop preload="auto" />
 
       <div className="roomStage">
         <div className="roomFloatShadow" />
@@ -378,7 +412,10 @@ export default function RoomScene() {
           <button
             className="hotspot hotspot-boombox"
             style={polygonStyle(boomboxPoly)}
-            onClick={() => setPanel("radio")}
+            onClick={() => {
+              toggleRadio();
+              setPanel("radio");
+            }}
             aria-label="Open boombox"
           />
           <button
@@ -420,7 +457,7 @@ export default function RoomScene() {
       {/* Windows */}
       {panel === "radio" && (
         <Win95Window
-          title="Boombox · Lofi Incoming"
+          title={radioOn ? "Boombox · Now Playing" : "Boombox · Lofi Incoming"}
           onClose={() => setPanel(null)}
           defaultX={70}
           defaultY={60}
@@ -428,7 +465,7 @@ export default function RoomScene() {
           height={180}
         >
           <div className="winSection">
-            <p>Coming soon: in-room lofi radio.</p>
+            <p>{radioOn ? "Lofi + rain are playing in the room." : "Click the boombox to start lofi + rain."}</p>
             <p>
               For now, open the{" "}
               <a
