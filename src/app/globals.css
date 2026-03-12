@@ -1,0 +1,54 @@
+:root {
+  --bg0: #050616;
+  --bg1: #0a0b25;
+  --neonBlue: rgba(90, 170, 255, 0.8);
+  --neonGreen: rgba(120, 255, 160, 0.65);
+  --warmLamp: rgba(255, 205, 120, 0.55);
+  --glass: rgba(255, 255, 255, 0.06);
+  --win95-face: #c0c0c0;
+  --win95-shadow: #808080;
+  --win95-dark: #000;
+  --win95-light: #fff;
+  --win95-blue: #000080;
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
+body {
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  background: radial-gradient(1200px 800px at 50% 40%, var(--bg1), var(--bg0));
+  overflow: hidden;
+  color: #eaeaf5;
+}
+
+.appRoot {
+  height: 100%;
+  display: grid;
+  place-items: center;
+  position: relative;
+}
+
+/* Subtle star field */
+.appRoot::before {
+  content: "";
+  position: absolute;
+  inset: -20%;
+  background-image:
+    radial-gradient(circle at 10% 20%, rgba(255,255,255,0.08) 0 1px, transparent 2px),
+    radial-gradient(circle at 40% 60%, rgba(255,255,255,0.06) 0 1px, transparent 2px),
+    radial-gradient(circle at 70% 30%, rgba(255,255,255,0.07) 0 1px, transparent 2px),
+    radial-gradient(circle at 90% 80%, rgba(255,255,255,0.05) 0 1px, transparent 2px);
+  background-size: 280px 280px, 340px 340px, 420px 420px, 520px 520px;
+  filter: blur(0.2px);
+  opacity: 0.8;
+  pointer-events: none;
+  animation: drift 18s linear infinite;
+}
+
+@keyframes drift {
+  0% { transform: translate3d(0,0,0); }
+  100% { transform: translate3d(-2.5%, 2%, 0); }
+}
+
+/* Win95 text selection vibe */
+::selection { background: rgba(90,170,255,0.35); }
