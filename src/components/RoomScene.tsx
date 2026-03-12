@@ -11,7 +11,6 @@ type Panel =
   | "newsletters"
   | "cheat"
   | "tv"
-  | "radio"
   | null;
 
 type Box = { left: number; top: number; width: number; height: number };
@@ -412,10 +411,7 @@ export default function RoomScene() {
           <button
             className="hotspot hotspot-boombox"
             style={polygonStyle(boomboxPoly)}
-            onClick={() => {
-              toggleRadio();
-              setPanel("radio");
-            }}
+            onClick={toggleRadio}
             aria-label="Open boombox"
           />
           <button
@@ -455,32 +451,6 @@ export default function RoomScene() {
       {hasPanel && <div className="modalBackdrop" onClick={() => setPanel(null)} />}
 
       {/* Windows */}
-      {panel === "radio" && (
-        <Win95Window
-          title={radioOn ? "Boombox · Now Playing" : "Boombox · Lofi Incoming"}
-          onClose={() => setPanel(null)}
-          defaultX={70}
-          defaultY={60}
-          width={420}
-          height={180}
-        >
-          <div className="winSection">
-            <p>{radioOn ? "Lofi + rain are playing in the room." : "Click the boombox to start lofi + rain."}</p>
-            <p>
-              For now, open the{" "}
-              <a
-                href="https://www.youtube.com/watch?v=YfVHMnqf_RE&list=PL4QmEcRcvG6JPfM0OyA-e2ZwOTJox2zSI"
-                target="_blank"
-                rel="noreferrer"
-              >
-                playlist on YouTube
-              </a>
-              .
-            </p>
-          </div>
-        </Win95Window>
-      )}
-
       {panel === "desktop" && (
         <Win95Window
           title="AFTERSCHOOL-LAIR"
