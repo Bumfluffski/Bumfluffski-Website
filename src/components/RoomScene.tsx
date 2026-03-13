@@ -70,17 +70,17 @@ export default function RoomScene() {
     []
   );
 
-  // Tamagotchi polygon (approximate, can be refined)
+  // Tamagotchi polygon (measured from Photoshop)
   const tamaPoly: PolyPoint[] = useMemo(
     () => [
-      // top-left  (~on bookshelf top)
-      { x: (460 / 2400) * 100, y: (620 / 1792) * 100 },
-      // top-right
-      { x: (530 / 2400) * 100, y: (600 / 1792) * 100 },
-      // bottom-right
-      { x: (545 / 2400) * 100, y: (650 / 1792) * 100 },
-      // bottom-left
-      { x: (470 / 2400) * 100, y: (675 / 1792) * 100 },
+      // top-left  (347, 582)
+      { x: (347 / 2400) * 100, y: (582 / 1792) * 100 },
+      // top-right (411, 574)
+      { x: (411 / 2400) * 100, y: (574 / 1792) * 100 },
+      // bottom-right (412, 641)
+      { x: (412 / 2400) * 100, y: (641 / 1792) * 100 },
+      // bottom-left (353, 640)
+      { x: (353 / 2400) * 100, y: (640 / 1792) * 100 },
     ],
     []
   );
