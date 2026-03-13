@@ -232,6 +232,8 @@ export default function Tamagotchi() {
           transform: translateX(-50%);
           width: 48px;
           image-rendering: pixelated;
+          z-index: 2;
+          filter: drop-shadow(0 0 2px #ffffffaa);
         }
         .boerieHead {
           position: absolute;
@@ -240,6 +242,8 @@ export default function Tamagotchi() {
           transform: translateX(-50%);
           width: 32px;
           image-rendering: pixelated;
+          z-index: 3;
+          filter: drop-shadow(0 0 2px #ffffffaa);
         }
         .poop {
           position: absolute;
@@ -274,6 +278,7 @@ export default function Tamagotchi() {
           color: #f8f8f8;
           font-size: 9px;
           border-radius: 4px;
+          z-index: 4;
         }
         .boerieStats {
           display: grid;
