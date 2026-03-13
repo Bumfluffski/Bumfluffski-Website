@@ -215,15 +215,16 @@ export default function Tamagotchi() {
           display: grid;
           grid-template-columns: auto;
           gap: 6px;
+          justify-items: center;
         }
         .boerieRoom {
           position: relative;
-          width: 140px;
-          height: 90px;
-          background: linear-gradient(#101528 45%, #261822 45%);
-          border-radius: 8px;
-          border: 2px solid #000;
-          overflow: hidden;
+          width: 160px;
+          height: 120px;
+          background: transparent;
+          border-radius: 0;
+          border: none;
+          overflow: visible;
         }
         .boerieBody {
           position: absolute;
