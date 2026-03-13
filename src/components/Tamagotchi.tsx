@@ -1,6 +1,6 @@
-\"use client\";
+"use client";
 
-import { useEffect, useState } from \"react\";
+import { useEffect, useState } from "react";
 
 type PetState = {
   hunger: number; // 0 = full, 100 = starving
@@ -10,14 +10,14 @@ type PetState = {
   alive: boolean;
 };
 
-const STORAGE_KEY = \"bum-room-tamagotchi-v1\";
+const STORAGE_KEY = "bum-room-tamagotchi-v1";
 
 function clamp(v: number, min: number, max: number) {
   return Math.min(max, Math.max(min, v));
 }
 
 function loadState(): PetState {
-  if (typeof window === \"undefined\") {
+  if (typeof window === "undefined") {
     return {
       hunger: 20,
       fun: 60,
@@ -28,16 +28,16 @@ function loadState(): PetState {
   }
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) throw new Error(\"no state\");
+    if (!raw) throw new Error("no state");
     const parsed = JSON.parse(raw) as PetState;
     if (
-      typeof parsed.hunger !== \"number\" ||
-      typeof parsed.fun !== \"number\" ||
-      typeof parsed.clean !== \"number\" ||
-      typeof parsed.lastTick !== \"number\" ||
-      typeof parsed.alive !== \"boolean\"
+      typeof parsed.hunger !== "number" ||
+      typeof parsed.fun !== "number" ||
+      typeof parsed.clean !== "number" ||
+      typeof parsed.lastTick !== "number" ||
+      typeof parsed.alive !== "boolean"
     ) {
-      throw new Error(\"invalid\");
+      throw new Error("invalid");
     }
     return parsed;
   } catch {
@@ -52,7 +52,7 @@ function loadState(): PetState {
 }
 
 function saveState(next: PetState) {
-  if (typeof window === \"undefined\") return;
+  if (typeof window === "undefined") return;
   try {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
   } catch {
@@ -135,40 +135,40 @@ export default function Tamagotchi() {
   };
 
   const face = !state.alive
-    ? \"x_x\"
+    ? "x_x"
     : state.hunger > 70 || state.clean < 30
-    ? \":-(\"
+    ? ":-("
     : state.fun > 70
-    ? \"^_^\"
-    : \":|\"; 
+    ? "^_^"
+    : ":|";
 
   const mood =
     !state.alive
-      ? \"Your Tama has gone to the big CRT in the sky. Revive?\"
+      ? "Your Tama has gone to the big CRT in the sky. Revive?"
       : state.hunger > 80
-      ? \"I'm starving... feed me!\"
+      ? "I'm starving... feed me!"
       : state.hunger > 60
-      ? \"Kinda hungry.\"
+      ? "Kinda hungry."
       : state.fun < 30
-      ? \"I'm bored. Let's play.\"
+      ? "I'm bored. Let's play."
       : state.clean < 30
-      ? \"I feel gross. Clean time.\"
-      : \"All good. Just vibing.\";
+      ? "I feel gross. Clean time."
+      : "All good. Just vibing.";
 
   return (
-    <div className=\"tamaRoot\">
-      <div className=\"tamaScreen\">
-        <div className=\"tamaFace\">{face}</div>
-        <div className=\"tamaBars\">
-          <StatBar label=\"HUNGER\" value={100 - state.hunger} goodHigher />
-          <StatBar label=\"FUN\" value={state.fun} />
-          <StatBar label=\"CLEAN\" value={state.clean} />
+    <div className="tamaRoot">
+      <div className="tamaScreen">
+        <div className="tamaFace">{face}</div>
+        <div className="tamaBars">
+          <StatBar label="HUNGER" value={100 - state.hunger} goodHigher />
+          <StatBar label="FUN" value={state.fun} />
+          <StatBar label="CLEAN" value={state.clean} />
         </div>
       </div>
 
-      <p className=\"tamaMood\">{mood}</p>
+      <p className="tamaMood">{mood}</p>
 
-      <div className=\"tamaButtons\">
+      <div className="tamaButtons">
         <button onClick={feed} disabled={!state.alive}>
           FEED
         </button>
@@ -179,7 +179,7 @@ export default function Tamagotchi() {
           CLEAN
         </button>
         {!state.alive && (
-          <button onClick={revive} className=\"revive\">
+          <button onClick={revive} className="revive">
             REVIVE
           </button>
         )}
@@ -246,12 +246,12 @@ function StatBar({ label, value, goodHigher = true }: StatProps) {
   const bad = goodHigher ? v < 30 : v > 70;
 
   return (
-    <div className=\"row\">
-      <span className=\"lbl\">{label}</span>
-      <div className=\"bar\">
-        <div className=\"fill\" />
+    <div className="row">
+      <span className="lbl">{label}</span>
+      <div className="bar">
+        <div className="fill" />
       </div>
-      <span className=\"val\">{Math.round(v)}</span>
+      <span className="val">{Math.round(v)}</span>
 
       <style jsx>{`
         .row {
