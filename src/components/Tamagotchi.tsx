@@ -176,11 +176,21 @@ export default function Tamagotchi() {
   return (
     <div className="tamaRoot">
       <div className="tamaShell">
+        <div className="tamaKeyring" />
+        <div className="tamaLogo">TAMA</div>
         <div className="tamaRoom">
           <img src="/ui/tama-character.png" alt="" className="tamaChar" />
           {Array.from({ length: state.poops }).map((_, i) => (
             <div key={i} className={`poop poop-${i}`} />
           ))}
+          <div className="tamaHud">
+            <div className="tamaFace">{face}</div>
+            <div className="tamaBars">
+              <StatBar label="H" value={100 - state.hunger} goodHigher />
+              <StatBar label="F" value={state.fun} />
+              <StatBar label="C" value={state.clean} />
+            </div>
+          </div>
         </div>
         <div className="tamaHardwareButtons">
           <button onClick={feed} disabled={!state.alive} aria-label="Feed" />
@@ -189,28 +199,19 @@ export default function Tamagotchi() {
         </div>
       </div>
 
-      <div className="tamaStats">
-        <div className="tamaFace">{face}</div>
-        <div className="tamaBars">
-          <StatBar label="HUNGER" value={100 - state.hunger} goodHigher />
-          <StatBar label="FUN" value={state.fun} />
-          <StatBar label="CLEAN" value={state.clean} />
-        </div>
-        <p className="tamaMood">{mood}</p>
-        {!state.alive && (
-          <button onClick={revive} className="revive">
-            REVIVE
-          </button>
-        )}
-      </div>
+      <p className="tamaMood">{mood}</p>
+      {!state.alive && (
+        <button onClick={revive} className="revive">
+          REVIVE
+        </button>
+      )}
 
       <style jsx>{`
         .tamaRoot {
           display: grid;
-          grid-template-columns: auto 1fr;
-          gap: 10px;
+          gap: 6px;
           font-size: 11px;
-          align-items: center;
+          justify-items: center;
         }
         .tamaShell {
           position: relative;
@@ -222,12 +223,32 @@ export default function Tamagotchi() {
             0 0 0 2px #3a2a1a,
             0 4px 6px rgba(0, 0, 0, 0.5);
         }
+        .tamaKeyring {
+          position: absolute;
+          top: -16px;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 20px;
+          height: 12px;
+          border-radius: 999px;
+          border: 2px solid #c0c0c0;
+          box-shadow: 0 0 0 1px #000;
+        }
+        .tamaLogo {
+          position: absolute;
+          top: 16px;
+          left: 0;
+          right: 0;
+          text-align: center;
+          font-size: 9px;
+          letter-spacing: 1px;
+        }
         .tamaRoom {
           position: absolute;
           left: 16px;
           right: 16px;
-          top: 28px;
-          height: 68px;
+          top: 32px;
+          height: 72px;
           background: linear-gradient(#0b1020 42%, #221622 42%);
           border-radius: 6px;
           border: 2px solid #111;
@@ -250,11 +271,11 @@ export default function Tamagotchi() {
         }
         .poop-0 {
           bottom: 4px;
-          left: 14px;
+          left: 12px;
         }
         .poop-1 {
           bottom: 4px;
-          right: 14px;
+          right: 12px;
         }
         .poop-2 {
           bottom: 10px;
@@ -263,6 +284,25 @@ export default function Tamagotchi() {
         .poop-3 {
           bottom: 10px;
           right: 30px;
+        }
+        .tamaHud {
+          position: absolute;
+          inset: 4px 4px auto;
+          display: grid;
+          grid-template-columns: auto 1fr;
+          gap: 2px 4px;
+          align-items: center;
+          font-family: "Courier New", monospace;
+          font-size: 9px;
+          color: #d5ffb0;
+        }
+        .tamaFace {
+          grid-column: 1 / span 2;
+          text-align: center;
+        }
+        .tamaBars {
+          display: grid;
+          gap: 1px;
         }
         .tamaHardwareButtons {
           position: absolute;
@@ -288,20 +328,9 @@ export default function Tamagotchi() {
           opacity: 0.5;
           cursor: default;
         }
-        .tamaStats {
-          display: grid;
-          gap: 6px;
-        }
-        .tamaFace {
-          font-family: "Courier New", monospace;
-          text-align: left;
-        }
-        .tamaBars {
-          display: grid;
-          gap: 4px;
-        }
         .tamaMood {
           margin: 0;
+          text-align: center;
         }
         .revive {
           margin-top: 4px;
