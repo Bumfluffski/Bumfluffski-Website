@@ -178,7 +178,6 @@ export default function Tamagotchi() {
     <div className="boerieRoot">
       <div className="boerieDevice">
         <div className="boerieRoom">
-          <img src="/ui/tama-character.png" alt="" className="boerieBody" />
           <img src={HEADS[state.stage]} alt="" className="boerieHead" />
           {Array.from({ length: state.poops }).map((_, i) => (
             <div key={i} className={`poop poop-${i}`} />
