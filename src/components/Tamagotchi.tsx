@@ -301,3 +301,6 @@ export default function Tamagotchi() {
           cursor: default;
         }
       `}</style>
+    </div>
+  );
+}
