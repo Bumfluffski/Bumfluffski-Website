@@ -1,9 +1,9 @@
-\"use client\";
+"use client";
 
-import { useEffect, useMemo, useRef, useState } from \"react\";
-import Win95Window from \"@/components/Win95Window\";
-import Tamagotchi from \"@/components/Tamagotchi\";
-import { newsletters, projects } from \"@/data/content\";
+import { useEffect, useMemo, useRef, useState } from "react";
+import Win95Window from "@/components/Win95Window";
+import Tamagotchi from "@/components/Tamagotchi";
+import { newsletters, projects } from "@/data/content";
 
 type Panel =
   | "desktop"
