@@ -1,8 +1,9 @@
-"use client";
+\"use client\";
 
-import { useEffect, useMemo, useRef, useState } from "react";
-import Win95Window from "@/components/Win95Window";
-import { newsletters, projects } from "@/data/content";
+import { useEffect, useMemo, useRef, useState } from \"react\";
+import Win95Window from \"@/components/Win95Window\";
+import Tamagotchi from \"@/components/Tamagotchi\";
+import { newsletters, projects } from \"@/data/content\";
 
 type Panel =
   | "desktop"
@@ -668,6 +669,22 @@ export default function RoomScene() {
         <Win95Window title="Cheat Code Unlocked" onClose={() => setPanel(null)} defaultX={210} defaultY={160}>
           <div className="winSection">
             <p><b>SECRET:</b> NU-DGE-1998</p>
+          </div>
+        </Win95Window>
+      )}
+
+      {panel === "projects" && (
+        <Win95Window title="Projects" onClose={() => setPanel(null)} defaultX={60} defaultY={70}>
+          <div className="winSection">
+            {projects.map((p) => (
+              <div key={p.title} className="cardRow">
+                <div className="cardTitle">{p.title}</div>
+                <div className="cardDesc">{p.desc}</div>
+                <div className="cardActions">
+                  <a href={p.link} target="_blank" rel="noreferrer">Open</a>
+                </div>
+              </div>
+            ))}
           </div>
         </Win95Window>
       )}
