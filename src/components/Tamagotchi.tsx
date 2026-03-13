@@ -6,6 +6,7 @@ type PetState = {
   hunger: number; // 0 = full, 100 = starving
   fun: number; // 0 = bored, 100 = happy
   clean: number; // 0 = dirty, 100 = spotless
+  poops: number; // 0+ little messes on the floor
   lastTick: number; // ms since epoch
   alive: boolean;
 };
@@ -22,6 +23,7 @@ function loadState(): PetState {
       hunger: 20,
       fun: 60,
       clean: 80,
+      poops: 0,
       lastTick: Date.now(),
       alive: true,
     };
@@ -39,12 +41,20 @@ function loadState(): PetState {
     ) {
       throw new Error("invalid");
     }
-    return parsed;
+    return {
+      hunger: parsed.hunger,
+      fun: parsed.fun,
+      clean: parsed.clean,
+      poops: typeof parsed.poops === "number" ? parsed.poops : 0,
+      lastTick: parsed.lastTick,
+      alive: parsed.alive,
+    };
   } catch {
     return {
       hunger: 20,
       fun: 60,
       clean: 80,
+      poops: 0,
       lastTick: Date.now(),
       alive: true,
     };
@@ -66,25 +76,32 @@ export default function Tamagotchi() {
   // Apply time-based decay on mount and over time
   useEffect(() => {
     const applyDecay = () => {
-      const now = Date.now();
-      const minutes = (now - state.lastTick) / 60000;
-      if (minutes <= 0.01) return;
+      setState((prev) => {
+        const now = Date.now();
+        const minutes = (now - prev.lastTick) / 60000;
+        if (minutes <= 0.01) return prev;
 
-      let hunger = clamp(state.hunger + minutes * 3, 0, 100);
-      let fun = clamp(state.fun - minutes * 2, 0, 100);
-      let clean = clamp(state.clean - minutes * 1.5, 0, 100);
+        let hunger = clamp(prev.hunger + minutes * 3, 0, 100);
+        let fun = clamp(prev.fun - minutes * 2, 0, 100);
+        let clean = clamp(prev.clean - minutes * 1.5, 0, 100);
 
-      const alive = hunger < 100;
+        // Add a poop roughly every 8 minutes of neglect, up to 4
+        const extraPoops = Math.floor(minutes / 8);
+        let poops = clamp(prev.poops + extraPoops, 0, 4);
 
-      const next: PetState = {
-        hunger,
-        fun,
-        clean,
-        lastTick: now,
-        alive,
-      };
-      setState(next);
-      saveState(next);
+        const alive = hunger < 100;
+
+        const next: PetState = {
+          hunger,
+          fun,
+          clean,
+          poops,
+          lastTick: now,
+          alive,
+        };
+        saveState(next);
+        return next;
+      });
     };
 
     // decay immediately based on time away
@@ -122,7 +139,7 @@ export default function Tamagotchi() {
 
   const clean = () => {
     if (!state.alive) return;
-    update({ clean: clamp(state.clean + 35, 0, 100) });
+    update({ clean: clamp(state.clean + 35, 0, 100), poops: 0 });
   };
 
   const revive = () => {
@@ -130,6 +147,7 @@ export default function Tamagotchi() {
       hunger: 40,
       fun: 60,
       clean: 80,
+      poops: 0,
       alive: true,
     });
   };
@@ -157,27 +175,28 @@ export default function Tamagotchi() {
 
   return (
     <div className="tamaRoot">
-      <div className="tamaScreen">
+      <div className="tamaShell">
+        <div className="tamaRoom">
+          <img src="/ui/tama-character.png" alt="" className="tamaChar" />
+          {Array.from({ length: state.poops }).map((_, i) => (
+            <div key={i} className={`poop poop-${i}`} />
+          ))}
+        </div>
+        <div className="tamaHardwareButtons">
+          <button onClick={feed} disabled={!state.alive} aria-label="Feed" />
+          <button onClick={play} disabled={!state.alive} aria-label="Play" />
+          <button onClick={clean} disabled={!state.alive} aria-label="Clean" />
+        </div>
+      </div>
+
+      <div className="tamaStats">
         <div className="tamaFace">{face}</div>
         <div className="tamaBars">
           <StatBar label="HUNGER" value={100 - state.hunger} goodHigher />
           <StatBar label="FUN" value={state.fun} />
           <StatBar label="CLEAN" value={state.clean} />
         </div>
-      </div>
-
-      <p className="tamaMood">{mood}</p>
-
-      <div className="tamaButtons">
-        <button onClick={feed} disabled={!state.alive}>
-          FEED
-        </button>
-        <button onClick={play} disabled={!state.alive}>
-          PLAY
-        </button>
-        <button onClick={clean} disabled={!state.alive}>
-          CLEAN
-        </button>
+        <p className="tamaMood">{mood}</p>
         {!state.alive && (
           <button onClick={revive} className="revive">
             REVIVE
@@ -188,19 +207,94 @@ export default function Tamagotchi() {
       <style jsx>{`
         .tamaRoot {
           display: grid;
+          grid-template-columns: auto 1fr;
           gap: 10px;
           font-size: 11px;
+          align-items: center;
         }
-        .tamaScreen {
-          border: 2px inset #808080;
-          background: #000080;
-          padding: 6px;
-          color: #0f0;
-          font-family: "Courier New", monospace;
+        .tamaShell {
+          position: relative;
+          width: 120px;
+          height: 150px;
+          background: radial-gradient(circle at 30% 20%, #ffe4a0, #e0a25a);
+          border-radius: 60px 60px 50px 50px;
+          box-shadow:
+            0 0 0 2px #3a2a1a,
+            0 4px 6px rgba(0, 0, 0, 0.5);
+        }
+        .tamaRoom {
+          position: absolute;
+          left: 16px;
+          right: 16px;
+          top: 28px;
+          height: 68px;
+          background: linear-gradient(#0b1020 42%, #221622 42%);
+          border-radius: 6px;
+          border: 2px solid #111;
+          overflow: hidden;
+        }
+        .tamaChar {
+          position: absolute;
+          bottom: 6px;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 40px;
+          image-rendering: pixelated;
+        }
+        .poop {
+          position: absolute;
+          width: 9px;
+          height: 6px;
+          background: #4b3a1a;
+          border-radius: 50% 50% 40% 40%;
+        }
+        .poop-0 {
+          bottom: 4px;
+          left: 14px;
+        }
+        .poop-1 {
+          bottom: 4px;
+          right: 14px;
+        }
+        .poop-2 {
+          bottom: 10px;
+          left: 30px;
+        }
+        .poop-3 {
+          bottom: 10px;
+          right: 30px;
+        }
+        .tamaHardwareButtons {
+          position: absolute;
+          bottom: 16px;
+          left: 0;
+          right: 0;
+          display: flex;
+          justify-content: space-evenly;
+        }
+        .tamaHardwareButtons button {
+          width: 14px;
+          height: 14px;
+          border-radius: 999px;
+          border: 1px solid #3a2a1a;
+          background: #f6e79a;
+          box-shadow:
+            1px 1px 0 #c29854,
+            -1px -1px 0 #fff6c8;
+          padding: 0;
+          cursor: pointer;
+        }
+        .tamaHardwareButtons button:disabled {
+          opacity: 0.5;
+          cursor: default;
+        }
+        .tamaStats {
+          display: grid;
+          gap: 6px;
         }
         .tamaFace {
-          text-align: center;
-          margin-bottom: 4px;
+          font-family: "Courier New", monospace;
+          text-align: left;
         }
         .tamaBars {
           display: grid;
@@ -209,29 +303,14 @@ export default function Tamagotchi() {
         .tamaMood {
           margin: 0;
         }
-        .tamaButtons {
-          display: flex;
-          gap: 6px;
-          flex-wrap: wrap;
-        }
-        .tamaButtons button {
-          min-width: 60px;
+        .revive {
+          margin-top: 4px;
           padding: 2px 6px;
           border: 2px solid #000;
-          background: #c0c0c0;
-          box-shadow:
-            1px 1px 0 #808080,
-            -1px -1px 0 #ffffff;
-          font-size: 10px;
-          cursor: pointer;
-        }
-        .tamaButtons button:disabled {
-          opacity: 0.6;
-          cursor: default;
-        }
-        .revive {
           background: #008000;
           color: #fff;
+          font-size: 10px;
+          cursor: pointer;
         }
       `}</style>
     </div>
