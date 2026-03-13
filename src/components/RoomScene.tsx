@@ -12,6 +12,7 @@ type Panel =
   | "newsletters"
   | "cheat"
   | "tv"
+  | "pet"
   | null;
 
 type Box = { left: number; top: number; width: number; height: number };
@@ -65,6 +66,21 @@ export default function RoomScene() {
       { x: (616 / 2400) * 100, y: (1165 / 1792) * 100 },
       // bottom-left (384, 1279)
       { x: (384 / 2400) * 100, y: (1279 / 1792) * 100 },
+    ],
+    []
+  );
+
+  // Tamagotchi polygon (approximate, can be refined)
+  const tamaPoly: PolyPoint[] = useMemo(
+    () => [
+      // top-left  (~on bookshelf top)
+      { x: (460 / 2400) * 100, y: (620 / 1792) * 100 },
+      // top-right
+      { x: (530 / 2400) * 100, y: (600 / 1792) * 100 },
+      // bottom-right
+      { x: (545 / 2400) * 100, y: (650 / 1792) * 100 },
+      // bottom-left
+      { x: (470 / 2400) * 100, y: (675 / 1792) * 100 },
     ],
     []
   );
@@ -394,6 +410,13 @@ export default function RoomScene() {
             onClick={() => setPanel("newsletters")}
             aria-label="Open Bookshelf"
           />
+          {/* Tamagotchi on the bookshelf */}
+          <button
+            className="hotspot hotspot-tama"
+            style={polygonStyle(tamaPoly)}
+            onClick={() => setPanel("pet")}
+            aria-label="Open virtual pet"
+          />
           {/* Nirvana poster hotspot opens newsletter area too */}
           <button
             className="hotspot hotspot-nirvana"
@@ -439,6 +462,7 @@ export default function RoomScene() {
               <div className="debugTag">DEBUG (press D to toggle)</div>
               <div className="debugBox" style={boxStyle(hotspots.pc)}><span>PC</span></div>
               <div className="debugPoly" style={polygonStyle(shelfPoly)}><span>Bookshelf</span></div>
+              <div className="debugPoly" style={polygonStyle(tamaPoly)}><span>Tama</span></div>
               <div className="debugPoly" style={polygonStyle(tvPoly)}><span>TV</span></div>
               <div className="debugPoly" style={polygonStyle(boomboxPoly)}><span>Boombox</span></div>
               <div className="debugPoly" style={polygonStyle(pizzaPoly)}><span>Pizza</span></div>
@@ -625,6 +649,12 @@ export default function RoomScene() {
         </Win95Window>
       )}
 
+      {panel === "pet" && (
+        <Win95Window title="Virtual Pet" onClose={() => setPanel(null)} defaultX={70} defaultY={80} width={280} height={230}>
+          <Tamagotchi />
+        </Win95Window>
+      )}
+
       {panel === "projects" && (
         <Win95Window title="Projects" onClose={() => setPanel(null)} defaultX={60} defaultY={70}>
           <div className="winSection">
@@ -669,22 +699,6 @@ export default function RoomScene() {
         <Win95Window title="Cheat Code Unlocked" onClose={() => setPanel(null)} defaultX={210} defaultY={160}>
           <div className="winSection">
             <p><b>SECRET:</b> NU-DGE-1998</p>
-          </div>
-        </Win95Window>
-      )}
-
-      {panel === "projects" && (
-        <Win95Window title="Projects" onClose={() => setPanel(null)} defaultX={60} defaultY={70}>
-          <div className="winSection">
-            {projects.map((p) => (
-              <div key={p.title} className="cardRow">
-                <div className="cardTitle">{p.title}</div>
-                <div className="cardDesc">{p.desc}</div>
-                <div className="cardActions">
-                  <a href={p.link} target="_blank" rel="noreferrer">Open</a>
-                </div>
-              </div>
-            ))}
           </div>
         </Win95Window>
       )}
