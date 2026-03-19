@@ -571,6 +571,20 @@ export default function RoomScene() {
 
               <a
                 className="desktop-icon"
+                href="https://bumfluffski.co.za/bumbleupon"
+                target="_blank"
+                rel="noreferrer"
+              >
+                <img
+                  src="/win95/internet.png"
+                  alt="BumbleUpon"
+                  className="desktop-icon-image"
+                />
+                <span className="desktop-icon-label">BumbleUpon</span>
+              </a>
+
+              <a
+                className="desktop-icon"
                 href="https://bumfluffski.co.za/youtube/"
                 target="_blank"
                 rel="noreferrer"
