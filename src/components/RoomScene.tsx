@@ -13,6 +13,7 @@ type Panel =
   | "cheat"
   | "tv"
   | "pet"
+  | "unfairMario"
   | null;
 
 type Box = { left: number; top: number; width: number; height: number };
@@ -451,7 +452,7 @@ export default function RoomScene() {
             style={polygonStyle(consolePoly)}
             onClick={() => {
               triggerGlitch();
-              window.alert("Coming Soon... Maybe, I get distracted");
+              setPanel("unfairMario");
             }}
             aria-label="Game console"
           />
@@ -473,7 +474,9 @@ export default function RoomScene() {
         </div>
       </div>
 
-      {hasPanel && <div className="modalBackdrop" onClick={() => setPanel(null)} />}
+      {hasPanel && panel !== "unfairMario" && (
+        <div className="modalBackdrop" onClick={() => setPanel(null)} />
+      )}
 
       {/* Windows */}
       {panel === "desktop" && (
@@ -717,6 +720,35 @@ export default function RoomScene() {
         </Win95Window>
       )}
 
+      {panel === "unfairMario" && (
+        <div
+          className="unfairOverlay"
+          role="dialog"
+          aria-label="Unfair Mario"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="unfairTitlebar">
+            <div className="unfairTitle">UNFAIR MARIO</div>
+            <button className="unfairCloseBtn" onClick={() => setPanel(null)} aria-label="Close">
+              ✕
+            </button>
+          </div>
+          <div className="unfairBody">
+            <iframe
+              src="https://archive.org/embed/unfair_mario"
+              title="Unfair Mario"
+              width="100%"
+              height="100%"
+              frameBorder={0}
+              allow="fullscreen"
+              webkitAllowFullScreen
+              mozAllowFullScreen
+              allowFullScreen
+            />
+          </div>
+        </div>
+      )}
+
       <style jsx>{`
         .sceneRoot {
           position: relative;
@@ -953,6 +985,69 @@ export default function RoomScene() {
           inset: 0;
           z-index: 30;
           background: rgba(0,0,0,0.45);
+        }
+
+        .unfairOverlay {
+          position: fixed;
+          inset: 0;
+          z-index: 80;
+          background: #c0c0c0;
+          border: 2px solid #000;
+          box-shadow:
+            2px 2px 0 #808080,
+            -2px -2px 0 #ffffff;
+          display: grid;
+          grid-template-rows: 30px 1fr;
+          user-select: none;
+        }
+
+        .unfairTitlebar {
+          height: 30px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 0 6px;
+          background: linear-gradient(90deg, #0080ff, #0a2a8f);
+        }
+
+        .unfairTitle {
+          font-size: 13px;
+          font-weight: 700;
+          color: #fff;
+          letter-spacing: 0.2px;
+        }
+
+        .unfairCloseBtn {
+          width: 26px;
+          height: 22px;
+          border: 2px solid #000;
+          background: #c0c0c0;
+          box-shadow:
+            1px 1px 0 #808080,
+            -1px -1px 0 #ffffff;
+          font-size: 12px;
+          cursor: pointer;
+          padding: 0;
+          line-height: 18px;
+        }
+
+        .unfairCloseBtn:active {
+          box-shadow: none;
+          transform: translate(1px, 1px);
+        }
+
+        .unfairBody {
+          position: relative;
+          overflow: hidden;
+          background: #fff;
+        }
+
+        .unfairBody iframe {
+          position: absolute;
+          inset: 0;
+          width: 100%;
+          height: 100%;
+          border: 0;
         }
 
         /* Win95-style desktop inside the PC window */
