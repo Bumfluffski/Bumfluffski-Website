@@ -25,11 +25,13 @@ export default function RoomScene() {
   const lofiAudioRef = useRef<HTMLAudioElement | null>(null);
   const rainAudioRef = useRef<HTMLAudioElement | null>(null);
   const unfairIframeRef = useRef<HTMLIFrameElement | null>(null);
+  const unfairOverlayRef = useRef<HTMLDivElement | null>(null);
 
   const [panel, setPanel] = useState<Panel>(null);
   const [glitch, setGlitch] = useState(false);
   const [radioOn, setRadioOn] = useState(false);
   const [desktopTime, setDesktopTime] = useState("");
+  const [autoFullscreenMario, setAutoFullscreenMario] = useState(false);
 
   // NEW: debug overlay to line things up
   const [debug, setDebug] = useState(false);
@@ -61,6 +63,27 @@ export default function RoomScene() {
     window.addEventListener("resize", apply);
     return () => window.removeEventListener("resize", apply);
   }, [panel]);
+
+  useEffect(() => {
+    if (panel !== "unfairMario" || !autoFullscreenMario) return;
+    const el = unfairOverlayRef.current;
+    if (!el) return;
+
+    const enter = async () => {
+      try {
+        if (!document.fullscreenElement) {
+          await el.requestFullscreen();
+        }
+      } catch {
+        // Ignore if fullscreen is blocked by browser policy.
+      } finally {
+        setAutoFullscreenMario(false);
+      }
+    };
+
+    const id = window.setTimeout(enter, 50);
+    return () => window.clearTimeout(id);
+  }, [panel, autoFullscreenMario]);
 
 
   /**
@@ -482,6 +505,7 @@ export default function RoomScene() {
             onClick={() => {
               triggerGlitch();
               setPanel("unfairMario");
+              setAutoFullscreenMario(true);
             }}
             aria-label="Game console"
           />
@@ -751,17 +775,15 @@ export default function RoomScene() {
 
       {panel === "unfairMario" && (
         <div
+          ref={unfairOverlayRef}
           className="unfairOverlay"
           role="dialog"
           aria-label="Unfair Mario"
           onClick={(e) => e.stopPropagation()}
         >
-          <div className="unfairTitlebar">
-            <div className="unfairTitle">UNFAIR MARIO</div>
-            <button className="unfairCloseBtn" onClick={() => setPanel(null)} aria-label="Close">
-              ✕
-            </button>
-          </div>
+          <button className="unfairCloseBtn" onClick={() => setPanel(null)} aria-label="Close">
+            ✕
+          </button>
           <div className="unfairBody">
             <div className="unfairGameArea">
               <iframe
@@ -769,7 +791,7 @@ export default function RoomScene() {
                 src="https://archive.org/embed/unfair_mario"
                 title="Unfair Mario"
                 frameBorder={0}
-                allow="fullscreen"
+                allowFullScreen
               />
             </div>
           </div>
@@ -1018,33 +1040,16 @@ export default function RoomScene() {
           position: fixed;
           inset: 0;
           z-index: 80;
-          background: #c0c0c0;
-          border: 2px solid #000;
-          box-shadow:
-            2px 2px 0 #808080,
-            -2px -2px 0 #ffffff;
-          display: grid;
-          grid-template-rows: 30px 1fr;
+          background: #000;
+          display: block;
           user-select: none;
         }
 
-        .unfairTitlebar {
-          height: 30px;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: 0 6px;
-          background: linear-gradient(90deg, #0080ff, #0a2a8f);
-        }
-
-        .unfairTitle {
-          font-size: 13px;
-          font-weight: 700;
-          color: #fff;
-          letter-spacing: 0.2px;
-        }
-
         .unfairCloseBtn {
+          position: fixed;
+          right: 12px;
+          top: 12px;
+          z-index: 82;
           width: 26px;
           height: 22px;
           border: 2px solid #000;
@@ -1064,7 +1069,8 @@ export default function RoomScene() {
         }
 
         .unfairBody {
-          position: relative;
+          position: absolute;
+          inset: 0;
           overflow: hidden;
           background: #000;
         }
