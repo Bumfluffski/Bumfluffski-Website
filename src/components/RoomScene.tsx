@@ -24,6 +24,7 @@ export default function RoomScene() {
   const stormRef = useRef<HTMLCanvasElement | null>(null);
   const lofiAudioRef = useRef<HTMLAudioElement | null>(null);
   const rainAudioRef = useRef<HTMLAudioElement | null>(null);
+  const unfairIframeRef = useRef<HTMLIFrameElement | null>(null);
 
   const [panel, setPanel] = useState<Panel>(null);
   const [glitch, setGlitch] = useState(false);
@@ -33,60 +34,33 @@ export default function RoomScene() {
   // NEW: debug overlay to line things up
   const [debug, setDebug] = useState(false);
 
-  function UnfairMarioOverlay({ onClose }: { onClose: () => void }) {
+  // Scale the Unfair Mario embed to a "cover" fit.
+  // Keep this effect out of any nested component to avoid iframe remounts.
+  useEffect(() => {
+    if (panel !== "unfairMario") return;
+
     const titlebarH = 30;
     const baseW = 560;
     const baseH = 384;
+    const iframe = unfairIframeRef.current;
+    if (!iframe) return;
 
-    const [gameSize, setGameSize] = useState<{ w: number; h: number }>(() => ({
-      w: baseW,
-      h: baseH,
-    }));
+    const apply = () => {
+      const availW = window.innerWidth;
+      const availH = window.innerHeight - titlebarH;
+      const scale = Math.max(availW / baseW, availH / baseH);
+      const w = Math.round(baseW * scale);
+      const h = Math.round(baseH * scale);
 
-    useEffect(() => {
-      const resize = () => {
-        const availW = window.innerWidth;
-        const availH = window.innerHeight - titlebarH;
-        const scale = Math.max(availW / baseW, availH / baseH);
-        setGameSize({
-          w: Math.round(baseW * scale),
-          h: Math.round(baseH * scale),
-        });
-      };
+      // Update sizing directly to avoid React re-renders that can cause the embed to reload.
+      iframe.style.width = `${w}px`;
+      iframe.style.height = `${h}px`;
+    };
 
-      resize();
-      window.addEventListener("resize", resize);
-      return () => window.removeEventListener("resize", resize);
-    }, []);
-
-    return (
-      <div
-        className="unfairOverlay"
-        role="dialog"
-        aria-label="Unfair Mario"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="unfairTitlebar">
-          <div className="unfairTitle">UNFAIR MARIO</div>
-          <button className="unfairCloseBtn" onClick={onClose} aria-label="Close">
-            ✕
-          </button>
-        </div>
-        <div className="unfairBody">
-          <div className="unfairGameArea">
-            <iframe
-              src="https://archive.org/embed/unfair_mario"
-              title="Unfair Mario"
-              frameBorder={0}
-              allow="fullscreen"
-              allowFullScreen
-              style={{ width: gameSize.w, height: gameSize.h, border: 0 }}
-            />
-          </div>
-        </div>
-      </div>
-    );
-  }
+    apply();
+    window.addEventListener("resize", apply);
+    return () => window.removeEventListener("resize", apply);
+  }, [panel]);
 
 
   /**
@@ -776,7 +750,30 @@ export default function RoomScene() {
       )}
 
       {panel === "unfairMario" && (
-        <UnfairMarioOverlay onClose={() => setPanel(null)} />
+        <div
+          className="unfairOverlay"
+          role="dialog"
+          aria-label="Unfair Mario"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="unfairTitlebar">
+            <div className="unfairTitle">UNFAIR MARIO</div>
+            <button className="unfairCloseBtn" onClick={() => setPanel(null)} aria-label="Close">
+              ✕
+            </button>
+          </div>
+          <div className="unfairBody">
+            <div className="unfairGameArea">
+              <iframe
+                ref={unfairIframeRef}
+                src="https://archive.org/embed/unfair_mario"
+                title="Unfair Mario"
+                frameBorder={0}
+                allow="fullscreen"
+              />
+            </div>
+          </div>
+        </div>
       )}
 
       <style jsx>{`
@@ -1078,6 +1075,16 @@ export default function RoomScene() {
           display: flex;
           align-items: center;
           justify-content: center;
+        }
+
+        .unfairGameArea iframe {
+          position: absolute;
+          left: 50%;
+          top: 50%;
+          transform: translate(-50%, -50%);
+          width: 560px;
+          height: 384px;
+          border: 0;
         }
 
         /* Win95-style desktop inside the PC window */
