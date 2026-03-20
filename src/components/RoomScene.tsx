@@ -788,7 +788,7 @@ export default function RoomScene() {
             <div className="unfairGameArea">
               <iframe
                 ref={unfairIframeRef}
-                src="https://archive.org/embed/unfair_mario"
+                src="https://www.miniplay.com/embed/unfair-mario"
                 title="Unfair Mario"
                 frameBorder={0}
                 allowFullScreen
