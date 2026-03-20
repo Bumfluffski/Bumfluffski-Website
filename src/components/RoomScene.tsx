@@ -33,6 +33,61 @@ export default function RoomScene() {
   // NEW: debug overlay to line things up
   const [debug, setDebug] = useState(false);
 
+  function UnfairMarioOverlay({ onClose }: { onClose: () => void }) {
+    const titlebarH = 30;
+    const baseW = 560;
+    const baseH = 384;
+
+    const [gameSize, setGameSize] = useState<{ w: number; h: number }>(() => ({
+      w: baseW,
+      h: baseH,
+    }));
+
+    useEffect(() => {
+      const resize = () => {
+        const availW = window.innerWidth;
+        const availH = window.innerHeight - titlebarH;
+        const scale = Math.max(availW / baseW, availH / baseH);
+        setGameSize({
+          w: Math.round(baseW * scale),
+          h: Math.round(baseH * scale),
+        });
+      };
+
+      resize();
+      window.addEventListener("resize", resize);
+      return () => window.removeEventListener("resize", resize);
+    }, []);
+
+    return (
+      <div
+        className="unfairOverlay"
+        role="dialog"
+        aria-label="Unfair Mario"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="unfairTitlebar">
+          <div className="unfairTitle">UNFAIR MARIO</div>
+          <button className="unfairCloseBtn" onClick={onClose} aria-label="Close">
+            ✕
+          </button>
+        </div>
+        <div className="unfairBody">
+          <div className="unfairGameArea">
+            <iframe
+              src="https://archive.org/embed/unfair_mario"
+              title="Unfair Mario"
+              frameBorder={0}
+              allow="fullscreen"
+              allowFullScreen
+              style={{ width: gameSize.w, height: gameSize.h, border: 0 }}
+            />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
 
   /**
    * HOTSPOTS
@@ -721,30 +776,7 @@ export default function RoomScene() {
       )}
 
       {panel === "unfairMario" && (
-        <div
-          className="unfairOverlay"
-          role="dialog"
-          aria-label="Unfair Mario"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <div className="unfairTitlebar">
-            <div className="unfairTitle">UNFAIR MARIO</div>
-            <button className="unfairCloseBtn" onClick={() => setPanel(null)} aria-label="Close">
-              ✕
-            </button>
-          </div>
-          <div className="unfairBody">
-            <iframe
-              src="https://archive.org/embed/unfair_mario"
-              title="Unfair Mario"
-              width="100%"
-              height="100%"
-              frameBorder={0}
-              allow="fullscreen"
-              allowFullScreen
-            />
-          </div>
-        </div>
+        <UnfairMarioOverlay onClose={() => setPanel(null)} />
       )}
 
       <style jsx>{`
@@ -1037,15 +1069,15 @@ export default function RoomScene() {
         .unfairBody {
           position: relative;
           overflow: hidden;
-          background: #fff;
+          background: #000;
         }
 
-        .unfairBody iframe {
+        .unfairGameArea {
           position: absolute;
           inset: 0;
-          width: 100%;
-          height: 100%;
-          border: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
         }
 
         /* Win95-style desktop inside the PC window */
