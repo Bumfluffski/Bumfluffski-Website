@@ -741,8 +741,6 @@ export default function RoomScene() {
               height="100%"
               frameBorder={0}
               allow="fullscreen"
-              webkitAllowFullScreen
-              mozAllowFullScreen
               allowFullScreen
             />
           </div>
