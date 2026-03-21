@@ -68,7 +68,15 @@ export const defaultGameState: Omit<GameState, "lastSeen"> = {
   progress: defaultProgress,
   persistence: defaultPersistence,
   age: 27,
-  lastAction: "Boetie’s holding the fort. Hit a button when you’re ready.",
+  lastAction: "He’s holding the fort — hit a button when you’re ready, china.",
+};
+
+/** One-liner previews when hovering care actions (before the real line resolves). */
+export const HOVER_PREVIEW_LINES: Record<"feed" | "jol" | "nap" | "wash", string> = {
+  feed: "Aweh… are those Boeries for me, or are you just teasing?",
+  jol: "Wait wait wait… are we joling now? Say less.",
+  nap: "Yoh. A tactical kip sounds downright elite.",
+  wash: "Freshen up? Finally, some standards around here.",
 };
 
 export const AGE_MILESTONES = [10, 28, 60, 120, 220] as const;
@@ -129,22 +137,22 @@ export const SURFACE_META: Record<
 > = {
   mood: {
     title: "Mood log",
-    subtitle: "The emotional paper trail of one tiny menace.",
+    subtitle: "Where the feelings go when they’ve nowhere polite left to go.",
     chip: "Recent feelings",
   },
   stats: {
     title: "Stats guide",
-    subtitle: "What each little meter is really trying to tell you.",
+    subtitle: "The five meters that keep this oke from full goblin.",
     chip: "Know your boetie",
   },
   care: {
     title: "Care guide",
-    subtitle: "How to keep him charming instead of legally concerning.",
+    subtitle: "Sweet spot, spam traps, and how not to kip yourself into trouble.",
     chip: "Pocket wisdom",
   },
   reset: {
     title: "Reset & rebirth",
-    subtitle: "Endings, beginnings, and respectable levels of drama.",
+    subtitle: "Hard wipe vs. fresh coat of paint — pick your drama.",
     chip: "Rituals",
   },
 };

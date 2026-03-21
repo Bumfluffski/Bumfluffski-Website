@@ -19,11 +19,13 @@ export function BoetieFace({ face, lookX = 0, lookY = 0, excitement = 0, hoverAc
   const isChaos = face === "chaos";
   const isHappy = face === "happy";
 
-  const headTranslateX = prefersReducedMotion ? 0 : lookX * 7;
-  const headTranslateY = prefersReducedMotion ? 0 : lookY * 5;
-  const featureX = prefersReducedMotion ? 0 : lookX * 5;
-  const featureY = prefersReducedMotion ? 0 : lookY * 3;
-  const beardTilt = prefersReducedMotion ? 0 : lookX * 3.5;
+  /* Mouse-follow is user-driven (not decorative motion); keep it even when “reduce motion” is on.
+     Framer idle loops below still respect prefersReducedMotion. */
+  const headTranslateX = lookX * 8;
+  const headTranslateY = lookY * 5.5;
+  const featureX = lookX * 5.5;
+  const featureY = lookY * 3.2;
+  const beardTilt = lookX * 3.8;
   const feedGlow = hoverAction === "feed";
 
   const bodyAnimation = prefersReducedMotion
@@ -75,7 +77,7 @@ export function BoetieFace({ face, lookX = 0, lookY = 0, excitement = 0, hoverAc
         <div
           className="absolute inset-0 transition-transform duration-200 ease-out"
           style={{
-            transform: `translate(${headTranslateX}px, ${headTranslateY}px) scale(${1 + (prefersReducedMotion ? 0 : excitement * 0.03)})`,
+            transform: `translate(${headTranslateX}px, ${headTranslateY}px) scale(${1 + excitement * 0.035})`,
           }}
         >
           {feedGlow ? (

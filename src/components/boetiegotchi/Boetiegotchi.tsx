@@ -1,9 +1,16 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
-import { startTransition, useEffect, useMemo, useRef, useState } from "react";
+import { useLayoutEffect, useMemo, useRef, useState } from "react";
 import { BoetieFace } from "./BoetieFace";
-import { actionDefs, defaultStats, statMeta, SURFACE_META, TITLE_DEFS } from "./constants";
+import {
+  actionDefs,
+  defaultStats,
+  HOVER_PREVIEW_LINES,
+  statMeta,
+  SURFACE_META,
+  TITLE_DEFS,
+} from "./constants";
 import { DeviceScreen } from "./DeviceScreen";
 import { DeviceShell } from "./DeviceShell";
 import { ActionIcon, StatIcon } from "./icons";
@@ -13,13 +20,13 @@ import { useBoetieGame } from "./useBoetieGame";
 import { clamp, getState } from "./gameEngine";
 import { truncateMessage } from "./stringUtils";
 
-const HYDRATING_MOOD = "Just a sec…";
-const HYDRATING_QUOTE = "Syncing your saved boetie from this device.";
+const HYDRATING_MOOD = "Warming up…";
+const HYDRATING_QUOTE = "Digging your save out of the digital couch cushions, china.";
 const PLACEHOLDER_TRAIT = "Loose unit";
 
 function HeaderBlock() {
   return (
-    <section className="z-10 flex min-w-0 flex-col justify-center lg:min-h-0 lg:max-w-[min(100%,28rem)] xl:max-w-[min(100%,34rem)]">
+    <section className="z-10 flex min-h-0 min-w-0 flex-col justify-center lg:min-h-[min(100%,28rem)] lg:max-w-[min(100%,30rem)] xl:max-w-[min(100%,34rem)]">
       <div className="w-full max-w-[30rem] xl:max-w-[34rem]">
         <div className="flex w-full justify-center lg:justify-start">
           <p
@@ -29,11 +36,12 @@ function HeaderBlock() {
             BOETIEGOTCHI
           </p>
         </div>
-        <h1 className="mt-3 font-ui text-[clamp(0.9rem,2vw,1.45rem)] font-bold leading-[1.08] text-stone-900">
-          Your pocket-sized Bumfluffski, built for snacks, chirps and mild destruction.
+        <h1 className="mt-3 font-ui text-[clamp(0.95rem,2.1vw,1.5rem)] font-bold leading-[1.12] text-stone-900">
+          A pocket-sized Bumfluffski — boerie-powered, chaos-prone, and weirdly loyal.
         </h1>
-        <p className="mt-3 max-w-[32rem] font-ui text-[clamp(0.82rem,1.25vw,1rem)] leading-relaxed text-stone-800/85">
-          Care surfaces live inside the toy — same little machine, extra hidden layers.
+        <p className="mt-3 max-w-[32rem] font-ui text-[clamp(0.82rem,1.25vw,1.02rem)] leading-[1.55] text-stone-800/90">
+          The shell&apos;s the toy; the screen&apos;s the stage. Pop the surfaces for mood logs, stats, and care advice
+          you&apos;d get from a tannie at a braai — same little machine, extra hidden layers.
         </p>
       </div>
     </section>
@@ -68,9 +76,8 @@ export default function Boetiegotchi() {
 
   const baselineLine = useMemo(() => getState(game.stats).line, [game.stats]);
 
-  useEffect(() => {
-    if (!isHydrated || prefersReducedMotion) return;
-
+  /* Mouse / pen look: not gated on hydration or reduced-motion — idle loops still respect reduced motion in BoetieFace. */
+  useLayoutEffect(() => {
     const el = petStageRef.current;
     if (!el) return;
 
@@ -85,7 +92,7 @@ export default function Boetiegotchi() {
       const centerY = rect.top + rect.height / 2;
       const dx = (pending.x - centerX) / (rect.width / 2);
       const dy = (pending.y - centerY) / (rect.height / 2);
-      startTransition(() => setCursorTarget({ x: clamp(dx, -1, 1), y: clamp(dy, -1, 1) }));
+      setCursorTarget({ x: clamp(dx, -1, 1), y: clamp(dy, -1, 1) });
     };
 
     const onMove = (event: MouseEvent) => {
@@ -98,7 +105,7 @@ export default function Boetiegotchi() {
 
     const onLeave = () => {
       pending.valid = false;
-      startTransition(() => setCursorTarget({ x: 0, y: 0 }));
+      setCursorTarget({ x: 0, y: 0 });
     };
 
     el.addEventListener("mousemove", onMove, { passive: true });
@@ -111,7 +118,7 @@ export default function Boetiegotchi() {
         pointerRafRef.current = null;
       }
     };
-  }, [isHydrated, prefersReducedMotion]);
+  }, []);
 
   const closeSurfacePanel = () => setOpenSurface(null);
 
@@ -167,7 +174,7 @@ export default function Boetiegotchi() {
                       </p>
                       {!isHydrated ? (
                         <p className="mt-1 font-ui text-[11px] font-semibold leading-snug text-[#26341f]/55">
-                          First visit? You&apos;ll meet him properly in a moment.
+                          First visit? Give him a sec — he&apos;s almost done polishing his attitude.
                         </p>
                       ) : null}
                     </div>
@@ -176,14 +183,14 @@ export default function Boetiegotchi() {
                     </p>
                   </div>
 
-                  <div className="relative mt-4 flex min-h-[220px] items-center justify-center overflow-hidden rounded-[1rem] border border-[#26341f]/15 bg-[linear-gradient(180deg,rgba(255,255,255,0.22),rgba(255,255,255,0.02))] px-2 py-4 sm:min-h-[280px] sm:px-4 sm:py-6 md:min-h-[300px]">
+                  <div
+                    ref={petStageRef}
+                    className="relative mt-4 flex min-h-[220px] cursor-crosshair items-center justify-center overflow-hidden rounded-[1rem] border border-[#26341f]/15 bg-[linear-gradient(180deg,rgba(255,255,255,0.22),rgba(255,255,255,0.02))] px-2 py-4 sm:min-h-[280px] sm:px-4 sm:py-6 md:min-h-[300px]"
+                  >
                     <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[28%] bg-[linear-gradient(180deg,rgba(126,161,96,0.1),rgba(79,122,61,0.35))]" />
                     <div className="pointer-events-none absolute bottom-[23%] left-[15%] h-8 w-8 rounded-full border-2 border-[#26341f]/20 bg-[#f3bd58]/70 blur-[1px]" />
                     <div className="pointer-events-none absolute right-[14%] top-[18%] h-10 w-10 rounded-full border-2 border-[#26341f]/15 bg-white/20 blur-[1px]" />
-                    <div
-                      ref={petStageRef}
-                      className="relative flex max-w-full cursor-default flex-col items-center touch-pan-y"
-                    >
+                    <div className="relative flex max-w-full flex-col items-center touch-pan-y">
                       <BoetieFace
                         face={isHydrated ? state.face : getState(defaultStats).face}
                         lookX={lookX}
@@ -304,14 +311,7 @@ export default function Boetiegotchi() {
                   aria-label="Care actions"
                 >
                   {actionDefs.map((action) => {
-                    const previewLine =
-                      action.id === "feed"
-                        ? "Aweh… are those Boeries for me?"
-                        : action.id === "jol"
-                          ? "Wait wait wait... are we joling now?"
-                          : action.id === "nap"
-                            ? "Yoh. A tactical kip sounds elite."
-                            : "Freshen up? Finally, some standards.";
+                    const previewLine = HOVER_PREVIEW_LINES[action.id];
                     return (
                     <motion.button
                       key={action.id}

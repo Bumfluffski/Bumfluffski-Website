@@ -20,6 +20,18 @@ type Props = {
 const FOCUSABLE =
   'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
+function eventTypeLabel(type: string): string {
+  const map: Record<string, string> = {
+    feed: "Boerie",
+    jol: "Jol",
+    nap: "Kip",
+    wash: "Freshen",
+    return: "Back from away",
+    rebirth: "Rebirth",
+  };
+  return map[type] ?? type;
+}
+
 export function SurfacePanel({
   openSurface,
   onClose,
@@ -162,14 +174,41 @@ export function SurfacePanel({
                           Day {entry.age}
                         </p>
                       </div>
-                      <p className="mt-1 font-ui text-xs font-bold text-[#5b2b16]/76">Face state: {entry.face}</p>
+                      <p className="mt-1 font-ui text-xs font-bold text-[#5b2b16]/76">Face: {entry.face}</p>
                     </div>
                   ))
                 ) : (
                   <p className="font-ui text-sm font-bold text-[#5b2b16]/76">
-                    No mood history yet. He is still becoming himself.
+                    Nothing in the log yet — he&apos;s still auditioning moods.
                   </p>
                 )}
+
+                <div className="pt-2">
+                  <p className="font-ui text-[11px] font-bold uppercase tracking-[0.14em] text-[#7b2418]/60 sm:text-xs sm:tracking-[0.16em]">
+                    Recent moments
+                  </p>
+                  {persistence.eventHistory.length ? (
+                    <ul className="mt-2 space-y-2">
+                      {persistence.eventHistory.map((entry, index) => (
+                        <li
+                          key={`${entry.ts}-${index}`}
+                          className="rounded-[1rem] border border-[#7b2418]/8 bg-[#fffdf6]/90 px-3 py-2.5 font-ui text-xs font-bold leading-snug text-[#5b2b16]/85"
+                        >
+                          <span className="text-[#7b2418]">{eventTypeLabel(entry.type)}</span>
+                          <span className="mx-1.5 text-[#7b2418]/35">·</span>
+                          <span className="break-words">{truncateMessage(entry.label, 120)}</span>
+                          <span className="mt-1 block text-[10px] font-bold uppercase tracking-[0.12em] text-[#7b2418]/55">
+                            Mood: {entry.mood}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="mt-2 font-ui text-sm font-bold text-[#5b2b16]/76">
+                      No scribbles yet — boeries and drama will land here soon.
+                    </p>
+                  )}
+                </div>
               </div>
             ) : null}
 
@@ -179,27 +218,27 @@ export function SurfacePanel({
                   {
                     title: "Chow",
                     value: Math.round(stats.chow),
-                    text: "How full he feels after boeries (or lack thereof). Low turns him dramatic; spamming Boeries makes him sulky.",
+                    text: "The boerie tank. Low means drama; spamming boeries makes him sulky and smug — pace it, china.",
                   },
                   {
                     title: "Jol",
                     value: Math.round(stats.joy),
-                    text: "His vibe meter. Jol lifts it fast, but it is not free and can mess up the rest of the balance.",
+                    text: "His vibe meter. Jol lifts it fast, but it ain’t free — tired jol turns the room into a circus.",
                   },
                   {
                     title: "Naps",
                     value: Math.round(stats.naps),
-                    text: "How switched-on he is. Low naps turns him floppy and irrational.",
+                    text: "How awake he is. When it drops, he flips floppy and irrational — like a phone on 1%.",
                   },
                   {
                     title: "Fresh",
                     value: Math.round(stats.hygiene),
-                    text: "How public-safe he is. Freshen helps, but overdoing it annoys him.",
+                    text: "How public-safe he is. Freshen helps; over-polishing makes him feel like a wine glass.",
                   },
                   {
                     title: "Chaos",
                     value: Math.round(stats.chaos),
-                    text: "His nonsense potential. Some chaos is charming. Too much becomes goblin mode.",
+                    text: "Nonsense potential. A little chaos is charm; too much is goblin mode with a licence.",
                   },
                 ].map((item) => (
                   <div
@@ -222,11 +261,12 @@ export function SurfacePanel({
               <div className="space-y-3">
                 {[
                   "Keep Chow above 56, Naps above 58, Fresh above 58, Jol above 56, and Chaos at or below 44 to stay in the sweet spot.",
-                  "Do not spam Boeries. He loves them, but too many in a row makes him miserable.",
-                  "Jol is best when he is rested. Tired jol spirals quickly.",
-                  "Kip reduces chaos, but it is not a substitute for food.",
-                  "Freshen is maintenance, not punishment. Over-cleaning makes him grumpy.",
-                  `At Day ${age}, his best streak is ${progress.bestBalancedStreak} and his current dominant trait is ${progress.dominantTrait}.`,
+                  "Don’t spam Boeries. He loves them, but too many in a row makes him miserable — same energy as a third helping at Christmas.",
+                  "Jol hits different when he’s rested. Tired jol spirals fast — ask anyone who’s jolled on empty batteries.",
+                  "Kip knocks chaos down, but it’s not a substitute for food. Hungry naps are a vibe, not a meal plan.",
+                  "Freshen is maintenance, not punishment. Over-cleaning makes him grumpy — like a cat in a bath.",
+                  `Age milestones ticked: ${progress.milestones.length ? progress.milestones.join(", ") : "none yet — keep him alive with style"}.`,
+                  `At Day ${age}, best balanced streak is ${progress.bestBalancedStreak} and his dominant trait reads ${progress.dominantTrait}.`,
                 ].map((item, index) => (
                   <div
                     key={index}
@@ -241,9 +281,10 @@ export function SurfacePanel({
             {openSurface === "reset" ? (
               <div className="space-y-4">
                 <div className="rounded-[1rem] border border-[#7b2418]/10 bg-[#fffdf6] px-3 py-3 sm:px-4">
-                  <p className="font-ui text-sm font-bold text-[#2b3523]">Reset save</p>
+                  <p className="font-ui text-sm font-bold text-[#2b3523]">Hard reset</p>
                   <p className="mt-2 break-words font-ui text-xs font-bold leading-relaxed text-[#5b2b16]/78">
-                    Wipes stats, progression, moods, event history and return summaries. This is a hard reset.
+                    Nuclear option: stats, streaks, moods, event log, and “last time you came back” summaries — all gone.
+                    Use when you need a clean slate and zero sentiment.
                   </p>
                   <button
                     type="button"
@@ -256,8 +297,8 @@ export function SurfacePanel({
                 <div className="rounded-[1rem] border border-[#4d7a3d]/14 bg-[#fffdf6] px-3 py-3 sm:px-4">
                   <p className="font-ui text-sm font-bold text-[#2b3523]">Rebirth</p>
                   <p className="mt-2 break-words font-ui text-xs font-bold leading-relaxed text-[#5b2b16]/78">
-                    Keeps his legend alive while giving him a fresh run. Best streak, titles and milestone memory stay.
-                    Daily stats and recent mood drift reset.
+                    Same legend, new run: titles, best streak, and milestone memories stay. Daily stats and
+                    recent mood noise reset — like a fresh haircut, but emotionally.
                   </p>
                   <button
                     type="button"
@@ -269,7 +310,7 @@ export function SurfacePanel({
                 </div>
                 {persistence.lastReturnSummary ? (
                   <div className="rounded-[1rem] border border-[#7b2418]/10 bg-[#fffdf6] px-3 py-3 font-ui text-xs font-bold leading-relaxed text-[#5b2b16]/78 sm:px-4">
-                    <span className="font-semibold text-[#2b3523]">Last return summary: </span>
+                    <span className="font-semibold text-[#2b3523]">Last “you were away” report: </span>
                     <span className="break-words">{truncateMessage(persistence.lastReturnSummary, 600)}</span>
                   </div>
                 ) : null}

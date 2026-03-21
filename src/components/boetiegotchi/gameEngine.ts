@@ -86,8 +86,8 @@ export function buildNeglectSummary(
   if (afterStats.chaos > beforeStats.chaos + chaosRise) parts.push("the chaos meter crept up");
 
   const summaryText = parts.length
-    ? `Away for a stretch: ${parts.join("; ")}. He’s back in a ${nextState.mood.toLowerCase()} mood — nothing a bit of care can’t fix.`
-    : `You were gone a while, but he mostly held the line. He’s in a ${nextState.mood.toLowerCase()} mood now.`;
+    ? `You were gone a good while: ${parts.join("; ")}. He’s landed in a ${nextState.mood.toLowerCase()} mood — nothing a few boeries and a bit of sense can’t patch.`
+    : `You were gone a while, but the oke mostly held the line. He’s in a ${nextState.mood.toLowerCase()} mood now — go on, give him something to work with.`;
 
   return {
     hoursAway: Number(hoursAway.toFixed(1)),
