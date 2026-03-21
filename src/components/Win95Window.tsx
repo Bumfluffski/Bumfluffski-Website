@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode, useEffect, useRef } from "react";
+import { ReactNode, useEffect, useId, useRef } from "react";
 
 type Props = {
   title: string;
@@ -22,6 +22,17 @@ export default function Win95Window({
   defaultY = 24,
 }: Props) {
   const ref = useRef<HTMLDivElement | null>(null);
+  const titleId = useId();
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      e.preventDefault();
+      onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
 
   useEffect(() => {
     const el = ref.current;
@@ -72,15 +83,20 @@ export default function Win95Window({
       style={{
         width,
         height,
+        maxWidth: "calc(100vw - 24px)",
+        maxHeight: "calc(100vh - 24px)",
         left: defaultX,
         top: defaultY,
       }}
       role="dialog"
-      aria-label={title}
+      aria-modal="true"
+      aria-labelledby={titleId}
     >
       <div className="win95Titlebar">
-        <div className="win95Title">{title}</div>
-        <button className="win95Btn" onClick={onClose} aria-label="Close">
+        <div id={titleId} className="win95Title">
+          {title}
+        </div>
+        <button type="button" className="win95Btn" onClick={onClose} aria-label="Close window">
           ✕
         </button>
       </div>
@@ -125,6 +141,10 @@ export default function Win95Window({
             -1px -1px 0 var(--win95-light);
           font-size: 12px;
           cursor: pointer;
+        }
+        .win95Btn:focus-visible {
+          outline: 2px solid #fff;
+          outline-offset: 2px;
         }
         .win95Btn:active {
           box-shadow: none;

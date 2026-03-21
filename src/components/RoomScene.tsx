@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Win95Window from "@/components/Win95Window";
-import Tamagotchi from "@/components/Tamagotchi";
+import Boetiegotchi from "@/components/boetiegotchi/Boetiegotchi";
 import { newsletters, projects } from "@/data/content";
 
 type Panel =
@@ -26,12 +26,14 @@ export default function RoomScene() {
   const rainAudioRef = useRef<HTMLAudioElement | null>(null);
   const unfairIframeRef = useRef<HTMLIFrameElement | null>(null);
   const unfairOverlayRef = useRef<HTMLDivElement | null>(null);
+  const petOverlayRef = useRef<HTMLDivElement | null>(null);
 
   const [panel, setPanel] = useState<Panel>(null);
   const [glitch, setGlitch] = useState(false);
   const [radioOn, setRadioOn] = useState(false);
   const [desktopTime, setDesktopTime] = useState("");
   const [autoFullscreenMario, setAutoFullscreenMario] = useState(false);
+  const [autoFullscreenPet, setAutoFullscreenPet] = useState(false);
 
   // NEW: debug overlay to line things up
   const [debug, setDebug] = useState(false);
@@ -50,7 +52,7 @@ export default function RoomScene() {
     const apply = () => {
       const availW = window.innerWidth;
       const availH = window.innerHeight - titlebarH;
-      const scale = Math.max(availW / baseW, availH / baseH);
+      const scale = Math.min(availW / baseW, availH / baseH);
       const w = Math.round(baseW * scale);
       const h = Math.round(baseH * scale);
 
@@ -85,6 +87,46 @@ export default function RoomScene() {
     return () => window.clearTimeout(id);
   }, [panel, autoFullscreenMario]);
 
+  useEffect(() => {
+    if (panel !== "pet" || !autoFullscreenPet) return;
+    const el = petOverlayRef.current;
+    if (!el) return;
+
+    const enter = async () => {
+      try {
+        if (!document.fullscreenElement) {
+          await el.requestFullscreen();
+        }
+      } catch {
+        // Ignore if fullscreen is blocked by browser policy.
+      } finally {
+        setAutoFullscreenPet(false);
+      }
+    };
+
+    const id = window.setTimeout(enter, 50);
+    return () => window.clearTimeout(id);
+  }, [panel, autoFullscreenPet]);
+
+  const closePet = useCallback(() => {
+    const el = petOverlayRef.current;
+    if (el && document.fullscreenElement === el) {
+      void document.exitFullscreen().then(() => setPanel(null)).catch(() => setPanel(null));
+    } else {
+      setPanel(null);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (panel !== "pet") return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      e.preventDefault();
+      closePet();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [panel, closePet]);
 
   /**
    * HOTSPOTS
@@ -467,8 +509,11 @@ export default function RoomScene() {
           <button
             className="hotspot hotspot-tama"
             style={polygonStyle(tamaPoly)}
-            onClick={() => setPanel("pet")}
-            aria-label="Open virtual pet"
+            onClick={() => {
+              setPanel("pet");
+              setAutoFullscreenPet(true);
+            }}
+            aria-label="Open Boetiegotchi"
           />
           {/* Nirvana poster hotspot opens newsletter area too */}
           <button
@@ -527,7 +572,7 @@ export default function RoomScene() {
         </div>
       </div>
 
-      {hasPanel && panel !== "unfairMario" && (
+      {hasPanel && panel !== "unfairMario" && panel !== "pet" && (
         <div className="modalBackdrop" onClick={() => setPanel(null)} />
       )}
 
@@ -720,9 +765,21 @@ export default function RoomScene() {
       )}
 
       {panel === "pet" && (
-        <Win95Window title="Virtual Pet" onClose={() => setPanel(null)} defaultX={70} defaultY={80} width={280} height={230}>
-          <Tamagotchi />
-        </Win95Window>
+        <div
+          ref={petOverlayRef}
+          className="petOverlay"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Boetiegotchi"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <button className="petCloseBtn" type="button" onClick={closePet} aria-label="Close Boetiegotchi">
+            ✕
+          </button>
+          <div className="petOverlayBody">
+            <Boetiegotchi />
+          </div>
+        </div>
       )}
 
       {panel === "projects" && (
@@ -1043,6 +1100,57 @@ export default function RoomScene() {
           background: #000;
           display: block;
           user-select: none;
+        }
+
+        .petOverlay {
+          position: fixed;
+          inset: 0;
+          z-index: 80;
+          background: radial-gradient(ellipse 120% 100% at 50% 0%, #2a2418 0%, #0f0d0a 55%, #080706 100%);
+          display: flex;
+          flex-direction: column;
+          overflow: hidden;
+          user-select: none;
+        }
+
+        .petOverlayBody {
+          flex: 1;
+          min-height: 0;
+          overflow: auto;
+          overscroll-behavior: contain;
+          -webkit-overflow-scrolling: touch;
+        }
+
+        .petCloseBtn {
+          position: fixed;
+          right: max(12px, env(safe-area-inset-right));
+          top: max(12px, env(safe-area-inset-top));
+          z-index: 82;
+          width: 44px;
+          height: 44px;
+          min-width: 44px;
+          min-height: 44px;
+          border: 2px solid #000;
+          background: #c0c0c0;
+          box-shadow:
+            1px 1px 0 #808080,
+            -1px -1px 0 #ffffff;
+          font-size: 16px;
+          cursor: pointer;
+          padding: 0;
+          line-height: 1;
+          display: grid;
+          place-items: center;
+        }
+
+        .petCloseBtn:focus-visible {
+          outline: 2px solid #fff;
+          outline-offset: 2px;
+        }
+
+        .petCloseBtn:active {
+          box-shadow: none;
+          transform: translate(1px, 1px);
         }
 
         .unfairCloseBtn {

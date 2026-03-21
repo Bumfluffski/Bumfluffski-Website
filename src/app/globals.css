@@ -1,3 +1,13 @@
+/* Theme + utilities only (no Tailwind preflight) — reduces global reset blast radius.
+   Room + Win95 UI keep existing custom CSS; Boetiegotchi relies on utilities + its own markup. */
+@layer theme, base, components, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
+
+@theme {
+  --font-family-brand: ui-serif, Georgia, "Times New Roman", serif;
+  --font-family-ui: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+}
 :root {
   --bg0: #050616;
   --bg1: #0a0b25;
@@ -48,6 +58,12 @@ body {
 @keyframes drift {
   0% { transform: translate3d(0,0,0); }
   100% { transform: translate3d(-2.5%, 2%, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .appRoot::before {
+    animation: none;
+  }
 }
 
 /* Win95 text selection vibe */
