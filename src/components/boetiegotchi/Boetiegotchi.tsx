@@ -37,12 +37,11 @@ function HeaderBlock() {
           </p>
         </div>
         <h1 className="mt-2 max-w-[26rem] font-ui text-[clamp(0.9rem,1.8vw,1.35rem)] font-bold leading-[1.2] text-stone-900 lg:mt-2.5">
-          A pocket-sized Bumfluffski — boerie-powered, chaos-prone, and weirdly loyal.
+          A pocket-sized Bumfluffski... boerie-powered, chaos-prone, and weirdly loyal.
         </h1>
         <p className="mt-2.5 max-w-[26rem] font-ui text-[clamp(0.8rem,1.15vw,0.98rem)] leading-[1.5] text-stone-800/92">
-          Feed him. Let him jol. Keep him clean enough for public viewing. Leave him too long and he&apos;ll develop
-          opinions. Everything lives inside the toy — moods, habits, little disasters, and the strange personality he
-          builds over time.
+          Feed him. Let him jol. Keep him clean enough for public viewing. Leave him too long and he'll develop
+          opinions. We don't want that.
         </p>
       </div>
     </section>
