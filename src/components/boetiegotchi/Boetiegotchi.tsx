@@ -26,22 +26,23 @@ const PLACEHOLDER_TRAIT = "Loose unit";
 
 function HeaderBlock() {
   return (
-    <section className="z-10 flex min-h-0 min-w-0 flex-col justify-center lg:min-h-[min(100%,28rem)] lg:max-w-[min(100%,30rem)] xl:max-w-[min(100%,34rem)]">
-      <div className="w-full max-w-[30rem] xl:max-w-[34rem]">
+    <section className="z-10 flex min-h-0 min-w-0 flex-col justify-center lg:max-w-[min(100%,28rem)] xl:max-w-[min(100%,30rem)]">
+      <div className="w-full max-w-[28rem] xl:max-w-[30rem]">
         <div className="flex w-full justify-center lg:justify-start">
           <p
-            className="max-w-full break-words font-brand text-center text-[clamp(1.5rem,5vw,3.25rem)] leading-[0.92] tracking-[0.01em] text-[#8d2419] drop-shadow-[0_3px_0_rgba(255,255,255,0.2)] lg:text-left"
+            className="max-w-full break-words font-brand text-center text-[clamp(1.35rem,4.2vw,2.85rem)] leading-[0.92] tracking-[0.01em] text-[#8d2419] drop-shadow-[0_3px_0_rgba(255,255,255,0.2)] lg:text-left"
             aria-hidden="true"
           >
             BOETIEGOTCHI
           </p>
         </div>
-        <h1 className="mt-3 font-ui text-[clamp(0.95rem,2.1vw,1.5rem)] font-bold leading-[1.12] text-stone-900">
+        <h1 className="mt-2 max-w-[26rem] font-ui text-[clamp(0.9rem,1.8vw,1.35rem)] font-bold leading-[1.2] text-stone-900 lg:mt-2.5">
           A pocket-sized Bumfluffski — boerie-powered, chaos-prone, and weirdly loyal.
         </h1>
-        <p className="mt-3 max-w-[32rem] font-ui text-[clamp(0.82rem,1.25vw,1.02rem)] leading-[1.55] text-stone-800/90">
-          The shell&apos;s the toy; the screen&apos;s the stage. Pop the surfaces for mood logs, stats, and care advice
-          you&apos;d get from a tannie at a braai — same little machine, extra hidden layers.
+        <p className="mt-2.5 max-w-[26rem] font-ui text-[clamp(0.8rem,1.15vw,0.98rem)] leading-[1.5] text-stone-800/92">
+          Feed him. Let him jol. Keep him clean enough for public viewing. Leave him too long and he&apos;ll develop
+          opinions. Everything lives inside the toy — moods, habits, little disasters, and the strange personality he
+          builds over time.
         </p>
       </div>
     </section>
@@ -63,8 +64,8 @@ export default function Boetiegotchi() {
   const state = useMemo(() => getState(displayStats), [displayStats]);
   const moodLabel = !isHydrated ? HYDRATING_MOOD : state.mood;
   const quoteLine = !isHydrated
-    ? HYDRATING_QUOTE
-    : truncateMessage(game.lastAction || state.line, 220);
+    ? truncateMessage(HYDRATING_QUOTE, 120)
+    : truncateMessage(game.lastAction || state.line, 120);
 
   const titleLabels = useMemo(
     () => TITLE_DEFS.filter((item) => game.progress.titles.includes(item.key)).map((item) => item.label),
@@ -76,16 +77,15 @@ export default function Boetiegotchi() {
 
   const baselineLine = useMemo(() => getState(game.stats).line, [game.stats]);
 
-  /* Mouse / pen look: not gated on hydration or reduced-motion — idle loops still respect reduced motion in BoetieFace. */
+  /* Window-level pointer: look is computed from cursor vs pet (face) stage center — no CSS transition on look transforms. */
   useLayoutEffect(() => {
-    const el = petStageRef.current;
-    if (!el) return;
-
     const pending = { x: 0, y: 0, valid: false };
 
     const flush = () => {
       pointerRafRef.current = null;
       if (!pending.valid) return;
+      const el = petStageRef.current;
+      if (!el) return;
       const rect = el.getBoundingClientRect();
       if (rect.width < 8 || rect.height < 8) return;
       const centerX = rect.left + rect.width / 2;
@@ -103,16 +103,9 @@ export default function Boetiegotchi() {
       pointerRafRef.current = window.requestAnimationFrame(flush);
     };
 
-    const onLeave = () => {
-      pending.valid = false;
-      setCursorTarget({ x: 0, y: 0 });
-    };
-
-    el.addEventListener("mousemove", onMove, { passive: true });
-    el.addEventListener("mouseleave", onLeave);
+    window.addEventListener("mousemove", onMove, { passive: true });
     return () => {
-      el.removeEventListener("mousemove", onMove);
-      el.removeEventListener("mouseleave", onLeave);
+      window.removeEventListener("mousemove", onMove);
       if (pointerRafRef.current != null) {
         window.cancelAnimationFrame(pointerRafRef.current);
         pointerRafRef.current = null;
@@ -122,26 +115,26 @@ export default function Boetiegotchi() {
 
   const closeSurfacePanel = () => setOpenSurface(null);
 
-  const deviceFloat = prefersReducedMotion ? {} : { y: [0, -5, 0] };
+  const deviceFloat = prefersReducedMotion ? {} : { y: [0, -4, 0] };
 
   return (
     <div
       role="region"
       aria-label="Boetiegotchi"
-      className="boetiegotchi-root isolate min-h-0 w-full min-w-0 overflow-x-hidden text-stone-950 [background:radial-gradient(circle_at_16%_16%,rgba(255,244,205,0.92),transparent_28%),radial-gradient(circle_at_86%_12%,rgba(242,177,84,0.36),transparent_24%),radial-gradient(circle_at_50%_100%,rgba(143,171,112,0.34),transparent_34%),linear-gradient(180deg,#efe4c8_0%,#d9c39b_47%,#b78f62_100%)]"
+      className="boetiegotchi-root isolate flex h-full min-h-0 w-full min-w-0 max-h-[100dvh] flex-col overflow-x-hidden overflow-y-hidden text-stone-950 [background:radial-gradient(circle_at_16%_16%,rgba(255,244,205,0.92),transparent_28%),radial-gradient(circle_at_86%_12%,rgba(242,177,84,0.36),transparent_24%),radial-gradient(circle_at_50%_100%,rgba(143,171,112,0.34),transparent_34%),linear-gradient(180deg,#efe4c8_0%,#d9c39b_47%,#b78f62_100%)]"
     >
-      <div className="relative mx-auto flex w-full max-w-[1600px] items-stretch justify-center px-2 py-3 sm:px-4 sm:py-4 lg:px-5">
-        <div className="grid w-full min-w-0 grid-cols-1 items-start gap-6 sm:gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(260px,1.05fr)] lg:gap-x-10 lg:gap-y-8 xl:grid-cols-[minmax(0,0.85fr)_minmax(320px,1.15fr)]">
+      <div className="relative mx-auto flex min-h-0 w-full max-w-[1600px] flex-1 flex-col justify-center px-2 py-2 sm:px-3 sm:py-2 lg:px-4">
+        <div className="grid min-h-0 w-full max-h-[min(100dvh,900px)] grid-cols-1 items-center gap-4 sm:gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(260px,1.05fr)] lg:gap-x-8 lg:gap-y-0 xl:grid-cols-[minmax(0,0.85fr)_minmax(320px,1.15fr)]">
           <HeaderBlock />
 
-          <section className="relative flex min-w-0 items-start justify-center lg:justify-end lg:pt-1">
+          <section className="relative flex min-h-0 min-w-0 items-start justify-center lg:justify-end">
             <motion.div
-              className="relative w-full min-w-0 max-w-[820px]"
+              className="relative w-full min-h-0 min-w-0 max-w-[820px]"
               animate={deviceFloat}
               transition={{ duration: prefersReducedMotion ? 0 : 5.2, repeat: Infinity, ease: "easeInOut" }}
             >
-              <div className="absolute -left-2 top-[9%] hidden h-24 w-24 rounded-full bg-white/20 blur-2xl md:block" />
-              <div className="absolute right-[8%] top-[14%] hidden h-28 w-28 rounded-full bg-[#f3bd58]/25 blur-2xl md:block" />
+              <div className="absolute -left-2 top-[9%] hidden h-20 w-20 rounded-full bg-white/20 blur-2xl md:block" />
+              <div className="absolute right-[8%] top-[14%] hidden h-24 w-24 rounded-full bg-[#f3bd58]/25 blur-2xl md:block" />
 
               <DeviceShell>
                 <div className="flex items-center justify-between gap-2 px-2 sm:px-3">
@@ -161,45 +154,49 @@ export default function Boetiegotchi() {
                 </div>
 
                 <DeviceScreen>
-                  <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div className="flex flex-wrap items-start justify-between gap-2">
                     <div className="min-w-0 flex-1 basis-[min(100%,14rem)]">
-                      <p className="font-ui text-[10px] font-bold uppercase tracking-[0.28em] text-[#26341f]/65">
+                      <p className="font-ui text-[9px] font-bold uppercase tracking-[0.26em] text-[#26341f]/65 sm:text-[10px]">
                         Mood today
                       </p>
                       <p
-                        className="break-words font-ui text-base font-bold leading-snug text-[#26341f] sm:text-lg"
+                        className="break-words font-ui text-[0.95rem] font-bold leading-snug text-[#26341f] sm:text-base"
                         aria-live={isHydrated ? "polite" : undefined}
                       >
                         {moodLabel}
                       </p>
                       {!isHydrated ? (
-                        <p className="mt-1 font-ui text-[11px] font-semibold leading-snug text-[#26341f]/55">
+                        <p className="mt-0.5 font-ui text-[10px] font-semibold leading-snug text-[#26341f]/55">
                           First visit? Give him a sec — he&apos;s almost done polishing his attitude.
                         </p>
                       ) : null}
                     </div>
-                    <p className="shrink-0 font-ui text-xs font-bold uppercase tracking-[0.22em] text-[#26341f]/65">
+                    <p className="shrink-0 font-ui text-[10px] font-bold uppercase tracking-[0.2em] text-[#26341f]/65 sm:text-xs sm:tracking-[0.22em]">
                       {isHydrated ? `Day ${game.age}` : "—"}
                     </p>
                   </div>
 
-                  <div
-                    ref={petStageRef}
-                    className="relative mt-4 flex min-h-[220px] cursor-crosshair items-center justify-center overflow-hidden rounded-[1rem] border border-[#26341f]/15 bg-[linear-gradient(180deg,rgba(255,255,255,0.22),rgba(255,255,255,0.02))] px-2 py-4 sm:min-h-[280px] sm:px-4 sm:py-6 md:min-h-[300px]"
-                  >
+                  <div className="relative mt-2 flex min-h-0 flex-col overflow-hidden rounded-[0.85rem] border border-[#26341f]/15 bg-[linear-gradient(180deg,rgba(255,255,255,0.22),rgba(255,255,255,0.02))]">
                     <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[28%] bg-[linear-gradient(180deg,rgba(126,161,96,0.1),rgba(79,122,61,0.35))]" />
-                    <div className="pointer-events-none absolute bottom-[23%] left-[15%] h-8 w-8 rounded-full border-2 border-[#26341f]/20 bg-[#f3bd58]/70 blur-[1px]" />
-                    <div className="pointer-events-none absolute right-[14%] top-[18%] h-10 w-10 rounded-full border-2 border-[#26341f]/15 bg-white/20 blur-[1px]" />
-                    <div className="relative flex max-w-full flex-col items-center touch-pan-y">
-                      <BoetieFace
-                        face={isHydrated ? state.face : getState(defaultStats).face}
-                        lookX={lookX}
-                        lookY={lookY}
-                        excitement={excitement}
-                        hoverAction={hoverAction}
-                      />
+                    <div className="pointer-events-none absolute bottom-[23%] left-[15%] h-7 w-7 rounded-full border-2 border-[#26341f]/20 bg-[#f3bd58]/70 blur-[1px]" />
+                    <div className="pointer-events-none absolute right-[14%] top-[18%] h-9 w-9 rounded-full border-2 border-[#26341f]/15 bg-white/20 blur-[1px]" />
+                    <div className="relative flex min-h-[168px] items-center justify-center px-1 pt-1.5 sm:min-h-[178px] md:min-h-[184px]">
+                      <div
+                        ref={petStageRef}
+                        className="flex origin-top scale-[0.72] items-center justify-center sm:scale-[0.78] md:scale-[0.82]"
+                      >
+                        <BoetieFace
+                          face={isHydrated ? state.face : getState(defaultStats).face}
+                          lookX={lookX}
+                          lookY={lookY}
+                          excitement={excitement}
+                          hoverAction={hoverAction}
+                        />
+                      </div>
+                    </div>
+                    <div className="flex h-[3.1rem] w-full shrink-0 flex-col items-center justify-start border-t border-[#26341f]/12 px-2 pb-1.5 pt-1.5 sm:h-[3.25rem]">
                       <p
-                        className="mt-2 max-w-full px-1 text-center font-ui text-[11px] font-bold uppercase leading-snug tracking-[0.1em] text-[#26341f]/72 sm:max-w-[min(100%,22rem)] sm:text-[0.95rem] sm:tracking-[0.12em]"
+                        className="line-clamp-2 max-w-[min(100%,20rem)] text-center font-ui text-[10px] font-bold uppercase leading-snug tracking-[0.08em] text-[#26341f]/78 sm:max-w-[22rem] sm:text-[11px] sm:tracking-[0.1em]"
                         title={isHydrated ? game.lastAction || state.line : HYDRATING_QUOTE}
                       >
                         &ldquo;{quoteLine}&rdquo;
@@ -207,25 +204,25 @@ export default function Boetiegotchi() {
                     </div>
                   </div>
 
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    <div className="max-w-full rounded-full border border-[#4d7a3d]/20 bg-[#fff7df]/70 px-3 py-1 font-ui text-[10px] font-bold uppercase tracking-[0.14em] text-[#4d7a3d]">
+                  <div className="mt-2 flex flex-wrap gap-1.5 sm:gap-2">
+                    <div className="max-w-full rounded-full border border-[#4d7a3d]/20 bg-[#fff7df]/70 px-2.5 py-0.5 font-ui text-[9px] font-bold uppercase tracking-[0.12em] text-[#4d7a3d] sm:px-3 sm:text-[10px] sm:tracking-[0.14em]">
                       Streak {isHydrated ? game.progress.balancedStreak : 0}
                     </div>
                     <div
-                      className="max-w-[min(100%,100%)] rounded-full border border-[#7b2418]/20 bg-[#fff7df]/70 px-3 py-1 font-ui text-[10px] font-bold uppercase tracking-[0.14em] text-[#7b2418]"
+                      className="max-w-[min(100%,100%)] rounded-full border border-[#7b2418]/20 bg-[#fff7df]/70 px-2.5 py-0.5 font-ui text-[9px] font-bold uppercase tracking-[0.12em] text-[#7b2418] sm:px-3 sm:text-[10px] sm:tracking-[0.14em]"
                       title={isHydrated ? game.progress.dominantTrait : PLACEHOLDER_TRAIT}
                     >
                       Trait {truncateMessage(isHydrated ? game.progress.dominantTrait : PLACEHOLDER_TRAIT, 42)}
                     </div>
                     <div
-                      className="max-w-full rounded-full border border-[#7b2418]/20 bg-[#fff7df]/70 px-3 py-1 font-ui text-[10px] font-bold uppercase tracking-[0.14em] text-[#7b2418]"
+                      className="max-w-full rounded-full border border-[#7b2418]/20 bg-[#fff7df]/70 px-2.5 py-0.5 font-ui text-[9px] font-bold uppercase tracking-[0.12em] text-[#7b2418] sm:px-3 sm:text-[10px] sm:tracking-[0.14em]"
                       title={isHydrated ? game.progress.lastDominantMood : "—"}
                     >
                       Last mood {truncateMessage(isHydrated ? game.progress.lastDominantMood : "—", 36)}
                     </div>
                     {isHydrated && game.persistence.neglectSummary ? (
                       <div
-                        className="max-w-full rounded-full border border-[#7b2418]/20 bg-[#fff7df]/70 px-3 py-1 font-ui text-[10px] font-bold uppercase tracking-[0.14em] text-[#7b2418]"
+                        className="max-w-full rounded-full border border-[#7b2418]/20 bg-[#fff7df]/70 px-2.5 py-0.5 font-ui text-[9px] font-bold uppercase tracking-[0.12em] text-[#7b2418] sm:px-3 sm:text-[10px] sm:tracking-[0.14em]"
                         title={`Away ~${game.persistence.neglectSummary.hoursAway}h`}
                       >
                         Gone {game.persistence.neglectSummary.hoursAway}h
@@ -233,7 +230,7 @@ export default function Boetiegotchi() {
                     ) : null}
                     {isHydrated && titleLabels.length > 0 ? (
                       <div
-                        className="max-w-full rounded-full border border-[#4d7a3d]/30 bg-[#fff7df]/90 px-3 py-1 font-ui text-[10px] font-bold uppercase tracking-[0.12em] text-[#2b3523]"
+                        className="max-w-full rounded-full border border-[#4d7a3d]/30 bg-[#fff7df]/90 px-2.5 py-0.5 font-ui text-[9px] font-bold uppercase tracking-[0.11em] text-[#2b3523] sm:px-3 sm:text-[10px] sm:tracking-[0.12em]"
                         title={titleLabels.join(" · ")}
                       >
                         {truncateMessage(titleLabels.join(" · "), 48)}
@@ -241,7 +238,7 @@ export default function Boetiegotchi() {
                     ) : null}
                   </div>
 
-                  <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-5 sm:gap-3">
+                  <div className="mt-2 grid grid-cols-2 gap-1.5 sm:grid-cols-5 sm:gap-2">
                     {statMeta.map((item) => {
                       const value = Math.round(displayStats[item.key]);
                       const iconType =
@@ -255,10 +252,10 @@ export default function Boetiegotchi() {
                                 ? "clean"
                                 : "chaos";
                       return (
-                        <div key={item.key} className="flex min-w-0 flex-col gap-1.5">
-                          <div className="mb-0.5 flex items-center justify-between gap-1 font-ui text-[10px] font-bold uppercase tracking-[0.12em] text-[#26341f]/74 sm:text-[11px]">
-                            <span className="flex min-w-0 items-center gap-1">
-                              <span className="shrink-0 [&_svg]:h-6 [&_svg]:w-6 sm:[&_svg]:h-8 sm:[&_svg]:w-8">
+                        <div key={item.key} className="flex min-w-0 flex-col gap-1">
+                          <div className="mb-0.5 flex items-center justify-between gap-1 font-ui text-[9px] font-bold uppercase tracking-[0.1em] text-[#26341f]/74 sm:text-[10px] sm:tracking-[0.12em]">
+                            <span className="flex min-w-0 items-center gap-0.5 sm:gap-1">
+                              <span className="shrink-0 [&_svg]:h-5 [&_svg]:w-5 sm:[&_svg]:h-7 sm:[&_svg]:w-7">
                                 <StatIcon type={iconType} />
                               </span>
                               <span className="min-w-0 truncate" title={item.label}>
@@ -268,7 +265,7 @@ export default function Boetiegotchi() {
                             <span className="shrink-0 tabular-nums">{value}%</span>
                           </div>
                           <div
-                            className="h-3 overflow-hidden rounded-full border border-[#26341f]/20 bg-white/25"
+                            className="h-2.5 overflow-hidden rounded-full border border-[#26341f]/20 bg-white/25 sm:h-3"
                             role="progressbar"
                             aria-valuemin={0}
                             aria-valuemax={100}
@@ -276,7 +273,7 @@ export default function Boetiegotchi() {
                             aria-label={`${item.label} ${value} percent`}
                           >
                             <div
-                              className="h-full rounded-full bg-[#4d7a3d] transition-[width] duration-700 ease-out motion-reduce:transition-none"
+                              className="h-full rounded-full bg-[#4d7a3d] transition-[width] duration-500 ease-out motion-reduce:transition-none"
                               style={{ width: `${value}%` }}
                               aria-hidden="true"
                             />
@@ -286,7 +283,7 @@ export default function Boetiegotchi() {
                     })}
                   </div>
 
-                  <div className="mt-3 flex flex-wrap gap-2">
+                  <div className="mt-2 flex flex-wrap gap-1.5 sm:gap-2">
                     {(Object.keys(SURFACE_META) as SurfaceKey[]).map((key) => {
                       const item = SURFACE_META[key];
                       return (
@@ -296,7 +293,7 @@ export default function Boetiegotchi() {
                           aria-expanded={openSurface === key}
                           whileHover={prefersReducedMotion ? undefined : { y: -1 }}
                           onClick={() => setOpenSurface(key)}
-                          className="max-w-full min-w-0 rounded-full border border-[#7b2418]/18 bg-[#fff7df]/82 px-3 py-2 text-left font-ui text-[10px] font-bold uppercase tracking-[0.15em] text-[#7b2418] shadow-[0_0_0_0_rgba(141,36,25,0.06)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#7b2418]"
+                          className="max-w-full min-w-0 rounded-full border border-[#7b2418]/18 bg-[#fff7df]/82 px-2.5 py-1.5 text-left font-ui text-[9px] font-bold uppercase tracking-[0.13em] text-[#7b2418] shadow-[0_0_0_0_rgba(141,36,25,0.06)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#7b2418] sm:px-3 sm:py-2 sm:text-[10px] sm:tracking-[0.15em]"
                         >
                           <span className="line-clamp-2">{item.title}</span>
                         </motion.button>
@@ -307,7 +304,7 @@ export default function Boetiegotchi() {
 
                 <div
                   ref={actionGridRef}
-                  className="mt-4 grid grid-cols-2 gap-2 px-1 sm:mt-5 sm:grid-cols-4 sm:gap-3 sm:px-2"
+                  className="mt-3 grid grid-cols-2 gap-2 px-0.5 sm:mt-3.5 sm:grid-cols-4 sm:gap-2.5 sm:px-1.5"
                   aria-label="Care actions"
                 >
                   {actionDefs.map((action) => {
@@ -343,7 +340,7 @@ export default function Boetiegotchi() {
                         setHoverAction(null);
                         softSetLastAction(baselineLine);
                       }}
-                      className="group flex min-h-[92px] flex-col items-center justify-center rounded-[1.6rem] border-[4px] border-[#7b2418] bg-[linear-gradient(180deg,#ffd992_0%,#f3b54c_100%)] px-1 text-center shadow-[0_8px_0_#9a5b18] transition-shadow duration-200 hover:shadow-[0_11px_0_#9a5b18] active:shadow-[0_5px_0_#9a5b18] focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-[#26341f] disabled:pointer-events-none disabled:opacity-60 sm:min-h-[104px] md:min-h-[108px]"
+                      className="group flex min-h-[76px] flex-col items-center justify-center rounded-[1.35rem] border-[3px] border-[#7b2418] bg-[linear-gradient(180deg,#ffd992_0%,#f3b54c_100%)] px-0.5 text-center shadow-[0_6px_0_#9a5b18] transition-shadow duration-200 hover:shadow-[0_9px_0_#9a5b18] active:shadow-[0_4px_0_#9a5b18] focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-[#26341f] disabled:pointer-events-none disabled:opacity-60 sm:min-h-[88px] sm:rounded-[1.5rem] sm:border-[4px] md:min-h-[92px]"
                     >
                       <ActionIcon type={action.id} />
                       <span className="mt-2 line-clamp-2 max-w-[95%] font-brand text-sm leading-tight text-[#7c2c13] sm:text-base md:text-lg">

@@ -75,7 +75,7 @@ export function BoetieFace({ face, lookX = 0, lookY = 0, excitement = 0, hoverAc
     >
       <div className="relative h-[18.5rem] w-[14rem] sm:h-[20rem] sm:w-[15rem]">
         <div
-          className="absolute inset-0 transition-transform duration-200 ease-out"
+          className="absolute inset-0 will-change-transform"
           style={{
             transform: `translate(${headTranslateX}px, ${headTranslateY}px) scale(${1 + excitement * 0.035})`,
           }}
@@ -89,7 +89,7 @@ export function BoetieFace({ face, lookX = 0, lookY = 0, excitement = 0, hoverAc
 
           <div className="absolute left-1/2 top-[4.1rem] h-[8.4rem] w-[9.5rem] -translate-x-1/2">
             <div
-              className="relative h-full w-full transition-transform duration-200 ease-out"
+              className="relative h-full w-full will-change-transform"
               style={{ transform: `translate(${featureX}px, ${featureY}px)` }}
             >
               <div

@@ -1116,9 +1116,8 @@ export default function RoomScene() {
         .petOverlayBody {
           flex: 1;
           min-height: 0;
-          overflow: auto;
+          overflow: hidden;
           overscroll-behavior: contain;
-          -webkit-overflow-scrolling: touch;
         }
 
         .petCloseBtn {
